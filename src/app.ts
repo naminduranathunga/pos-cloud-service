@@ -13,6 +13,9 @@ import { config } from 'dotenv';
 config();
 
 import express from 'express';
+import UserLogin from './user_login';
+import { auth } from './middleware/auth';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -32,13 +35,24 @@ app.get('/', (req, res) => {
   res.send('Hello World! 3');
 });
 
-
 //--------------------------------------------
 // define api endpoint routes here
 //--------------------------------------------
+
 const router = express.Router();
 
-app.get('/api/v1/', router);
+// login route
+router.get('/login', UserLogin);
+
+/**
+ * these route are only accessible via a valid token in header
+ * @see middleware/auth.ts
+ */
+const protected_routes = express.Router();
+protected_routes.use(auth); 
+
+
+app.use('/api/v1', router);
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
