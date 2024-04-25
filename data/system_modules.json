@@ -1,0 +1,7 @@
+[
+    {
+        "module_name": "Hello World",
+        "module_path": "hello-world",
+        "start_point": "hello-world/main.js"
+    }
+]

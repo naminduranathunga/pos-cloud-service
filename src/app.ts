@@ -15,6 +15,7 @@ config();
 import express from 'express';
 import UserLogin from './user_login';
 import { auth } from './middleware/auth';
+import { add_api_endpoints, load_modules } from './modules/app_manager';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,7 +29,7 @@ const port = process.env.PORT || 3000;
 //--------------------------------------------
 // initilize event handler here
 //--------------------------------------------
-
+load_modules();
 
 
 app.get('/', (req, res) => {
@@ -48,11 +49,13 @@ router.get('/login', UserLogin);
  * these route are only accessible via a valid token in header
  * @see middleware/auth.ts
  */
-const protected_routes = express.Router();
-protected_routes.use(auth); 
+const protected_router = express.Router();
+protected_router.use(auth); 
 
+add_api_endpoints(router, protected_router);
 
 app.use('/api/v1', router);
+app.use('/api/v1', protected_router);
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
