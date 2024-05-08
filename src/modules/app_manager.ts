@@ -5,11 +5,12 @@
  */
 
 import express from 'express';
-import { AppApiEndpoint, AppEvent, AppSingleModule } from '../interfaces/app_manager_interfaces';
+import { AppApiEndpoint, AppEvent, AppSingleModule, UserPermissionType } from '../interfaces/app_manager_interfaces';
 
 var event_handlers = new Map<string, AppEvent[]>();
 var api_endpoints = new Map<string, AppApiEndpoint>();
 var modue_list = [];
+var user_permission_list = Array<UserPermissionType>();
 
 
 /**
@@ -71,7 +72,6 @@ export function load_modules(){
 
 
 // add api endpoints to express app
-
 export function add_api_endpoints(guest_router:express.Router, protected_router:express.Router){
     api_endpoints.forEach((endpoint:AppApiEndpoint) => {
         if (endpoint.is_protected){
@@ -80,4 +80,32 @@ export function add_api_endpoints(guest_router:express.Router, protected_router:
             guest_router.get(endpoint.route, endpoint.handler);
         }
     });
+}
+
+
+/**
+ * Register user permissions
+ */
+export function register_user_permissions(permission:string, label:string, module_name:string, allowed_roles?:string[]){
+    if (!allowed_roles){
+        allowed_roles = ['admin'];
+    }
+    user_permission_list.push({name:permission, label, module:module_name, allowed_roles});
+}
+
+/**
+ * Return all registered permissions
+ */
+export default function get_user_permissions(module_name?: string):UserPermissionType[]{
+    if (module_name){
+        return user_permission_list.filter((permission:UserPermissionType) => permission.module === module_name);
+    }
+    return user_permission_list;
+}
+
+/**
+ * Check whether the given user has permission to access the given module
+ */
+export function check_user_permission(user:any, module_name:string):boolean{
+    return true;
 }

@@ -17,3 +17,10 @@ export interface AppSingleModule {
     module_path: string,
     start_point: string
 };
+
+export interface UserPermissionType {
+    name: string,
+    label: string,
+    module: string,
+    allowed_roles: string[]
+};
