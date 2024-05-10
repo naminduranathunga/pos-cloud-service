@@ -18,7 +18,7 @@ import { register_user_permissions } from "../../modules/app_manager";
 import config from "./config";
 
 /** Init the module */
-export default function init_module(){
+export function init_module(){
     // Register available permissions
     config.permissions.forEach((permission) => {
         register_user_permissions(permission.name, permission.description, config.name);

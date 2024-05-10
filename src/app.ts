@@ -16,6 +16,8 @@ import express from 'express';
 import UserLogin from './user_login';
 import { auth } from './middleware/auth';
 import { add_api_endpoints, load_modules } from './modules/app_manager';
+import bodyParser from 'body-parser';
+import { db_connect } from './middleware/db_connect';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,7 +25,9 @@ const port = process.env.PORT || 3000;
 //--------------------------------------------
 // initilize middlewares here
 //--------------------------------------------
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(db_connect);
 
 
 //--------------------------------------------

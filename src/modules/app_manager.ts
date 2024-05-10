@@ -64,7 +64,11 @@ export function load_modules(){
 
     modules.forEach((module_single:AppSingleModule) => {
         const module = require(`../system_modules/${module_single.start_point}`);
-        module.init_module();
+        if (typeof(module.init_module) === "function"){
+            module.init_module();
+        } else {
+            console.log("Error :" + module_single.module_name);
+        }
         modue_list.push(module_single);
     });
 } 
@@ -74,10 +78,20 @@ export function load_modules(){
 // add api endpoints to express app
 export function add_api_endpoints(guest_router:express.Router, protected_router:express.Router){
     api_endpoints.forEach((endpoint:AppApiEndpoint) => {
-        if (endpoint.is_protected){
-            protected_router.get(endpoint.route, endpoint.handler);
+        if (endpoint.is_protected === true){
+            console.log("Protected Route: " + endpoint.route);
+            if (endpoint.method && endpoint.method === "POST"){
+                protected_router.post(endpoint.route, endpoint.handler);
+            } else {
+                protected_router.get(endpoint.route, endpoint.handler);
+            }
         } else {
-            guest_router.get(endpoint.route, endpoint.handler);
+            console.log("Guest Route: " + endpoint.route);
+            if (endpoint.method && endpoint.method === "POST"){
+                guest_router.post(endpoint.route, endpoint.handler);
+            } else {
+                guest_router.get(endpoint.route, endpoint.handler);
+            }
         }
     });
 }
@@ -106,6 +120,6 @@ export default function get_user_permissions(module_name?: string):UserPermissio
 /**
  * Check whether the given user has permission to access the given module
  */
-export function check_user_permission(user:any, module_name:string):boolean{
+export function check_user_permission(user:any, permission_name:string):boolean{
     return true;
 }

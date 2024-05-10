@@ -4,6 +4,7 @@
 import jwt from 'jsonwebtoken';
 
 import { Request, Response, NextFunction } from 'express';
+//import { AuthenticatedUser } from '../interfaces/app_manager_interfaces';
 
 export function auth(req:Request, res:Response, next:NextFunction){
     // Get token from header
@@ -11,11 +12,15 @@ export function auth(req:Request, res:Response, next:NextFunction){
 
     // Check if not token
     if(!token){
-        return res.status(401).json({msg: 'No token, authorization denied'});
+        console.log('No token, authorization denied');
+        return res.status(401).json({msg: 'No token, authorization denied2'});
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        //const auth_user = decoded as AuthenticatedUser;
+        
+        
         req.body.user = decoded;
         next();
     } catch (err) {
