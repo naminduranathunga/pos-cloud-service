@@ -20,7 +20,7 @@ interface ComapanyDetailsBody {
  */
 export default async function get_company_list(req: Request, res: Response){
     const params = req.body as ComapanyDetailsBody;
-    /*const {user} = req.body as {user:any}; // authentication
+    const {user} = req.body as {user:any}; // authentication
 
     // permission validation
     // only super-admins
@@ -29,7 +29,7 @@ export default async function get_company_list(req: Request, res: Response){
             "message": "No permissions"
         });
         return;
-    }*/
+    }
 
     const page = params.page || 1;
     const perPage = params.perPage || 20;

@@ -1,8 +1,15 @@
 import mongoose from "mongoose";
-
+/**
+ * Connect to MongoDB
+ */
 
 export default async function ConnectMongoDB(){
-    const MongoDBURL = process.env.MONGODB_URL || "";
+    const host = process.env.MONGODB_HOST || "localhost";
+    const user = process.env.MONGODB_USER || "";
+    const pass = process.env.MONGODB_PASSWORD || "";
+    const db = process.env.MONGODB_DB_NAME || "test";
+    const MongoDBURL = `mongodb+srv://${user}:${pass}@${host}/${db}`;
+    console.log(MongoDBURL);
     if (!MongoDBURL) {
         throw new Error("MongoDB URL not found");
     }

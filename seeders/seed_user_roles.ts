@@ -11,7 +11,7 @@ export async function seed_user_roles() {
         name: "Super Admin",
         slug: "super-admin",
         description: "Super Admin - For the system administration",
-        permissions: ["all"],
+        permissions: ["super-admin-permissions"],
     });
     await super_admin.save();
 

@@ -22,7 +22,7 @@ interface ComapanyDetailsBody {
  */
 export default async function create_new_company(req: Request, res: Response){
     const company = req.body as ComapanyDetailsBody;
-    /*const user = company.user;
+    const user = company.user;
 
     // permission validation
     // only super-admins
@@ -31,7 +31,7 @@ export default async function create_new_company(req: Request, res: Response){
             "message": "No permissions"
         });
         return;
-    }*/
+    }
 
     // check if company already exists
     const company_exists = await Company.findOne({email: company.email});

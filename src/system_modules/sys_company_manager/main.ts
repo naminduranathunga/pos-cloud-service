@@ -39,22 +39,21 @@ function endpoints() {
 
     register_api_endpoint({
         route: `${route_prefix}${company_prefix}/get`,
-        is_protected: false,
+        is_protected: true,
         method: "GET",
         handler: get_company_list
     });
 
     register_api_endpoint({
         route: `${route_prefix}${company_prefix}/create`,
-        is_protected: false,
+        is_protected: true,
         method: "POST",
         handler: create_new_company
     });
 
-    
     register_api_endpoint({
         route: `${route_prefix}${company_prefix}/create-user`,
-        is_protected: false,
+        is_protected: true,
         method: "POST",
         handler: create_new_company_user
     });
