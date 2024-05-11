@@ -9,7 +9,6 @@ export default async function ConnectMongoDB(){
     const pass = process.env.MONGODB_PASSWORD || "";
     const db = process.env.MONGODB_DB_NAME || "test";
     const MongoDBURL = `mongodb+srv://${user}:${pass}@${host}/${db}`;
-    console.log(MongoDBURL);
     if (!MongoDBURL) {
         throw new Error("MongoDB URL not found");
     }

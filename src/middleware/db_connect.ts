@@ -11,10 +11,8 @@ export function db_connect(req:Request, res:Response, next:NextFunction){
     
     try {
         ConnectMongoDB().then(()=>{
-            console.log('Connected to MongoDB');
             next();
         }).catch((err)=>{
-            console.log('Error connecting to MongoDB');
             res.status(500).json({msg: 'Internal Server Error'});
         });
         
