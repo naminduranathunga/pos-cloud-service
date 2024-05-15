@@ -104,9 +104,17 @@ export function add_api_endpoints(guest_router:express.Router, protected_router:
             }
         } else {
             if (endpoint.method && endpoint.method === "POST"){
-                guest_router.post(endpoint.route, endpoint.handler);
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    guest_router.post(endpoint.route, endpoint.middlewares, endpoint.handler);
+                }else {
+                    guest_router.post(endpoint.route, endpoint.handler);
+                }
             } else {
-                guest_router.get(endpoint.route, endpoint.handler);
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    guest_router.get(endpoint.route, endpoint.middlewares, endpoint.handler);
+                } else {
+                    guest_router.get(endpoint.route, endpoint.handler);
+                }
             }
         }
     });
