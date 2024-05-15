@@ -12,7 +12,7 @@ import { check_user_permission, raise_event } from "../../../../modules/app_mana
  */
 export default async function remove_product_category(req: Request, res: Response){
     const { category_id } = req.body as {category_id?: string;};
-    const {user} = req.body as {user: AuthenticatedUser};
+    const user = req.user;
 
     // get user's company
     if (!user.company) return res.status(400).json({message: "User does not belong to a company"});

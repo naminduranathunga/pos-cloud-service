@@ -4,7 +4,7 @@
 import jwt from 'jsonwebtoken';
 
 import { Request, Response, NextFunction } from 'express';
-import JwtTokenUser from '../interfaces/jwt_token_user';
+import JwtTokenUser, { AuthenticatedUser } from '../interfaces/jwt_token_user';
 import UserRole from '../schemas/company/user_permission_schema';
 //import { AuthenticatedUser } from '../interfaces/app_manager_interfaces';
 
@@ -32,7 +32,8 @@ export async function auth(req:Request, res:Response, next:NextFunction){
             res.status(401).json({msg: 'Token is not valid'});
             return;
         }
-        req.body.user = decoded;
+        //req.body.user = decoded;
+        req.user = decoded as unknown as AuthenticatedUser;
         next();
     } catch (err) {
         res.status(401).json({msg: 'Token is not valid'});

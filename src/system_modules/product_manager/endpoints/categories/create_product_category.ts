@@ -12,7 +12,7 @@ import { check_user_permission } from "../../../../modules/app_manager";
  */
 export default async function create_product_category(req: Request, res: Response){
     const { name, parent_id} = req.body as {name: string, parent_id?: string;};
-    const {user} = req.body as {user: AuthenticatedUser};
+    const user = req.user;
 
     // get user's company
     if (!user.company) return res.status(400).json({message: "User does not belong to a company"});

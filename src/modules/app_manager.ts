@@ -90,9 +90,17 @@ export function add_api_endpoints(guest_router:express.Router, protected_router:
     api_endpoints.forEach((endpoint:AppApiEndpoint) => {
         if (endpoint.is_protected === true){
             if (endpoint.method && endpoint.method === "POST"){
-                protected_router.post(endpoint.route, endpoint.handler);
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    protected_router.post(endpoint.route, endpoint.middlewares, endpoint.handler);
+                } else{
+                    protected_router.post(endpoint.route, endpoint.handler);
+                }
             } else {
-                protected_router.get(endpoint.route, endpoint.handler);
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    protected_router.get(endpoint.route, endpoint.middlewares, endpoint.handler);
+                } else {
+                    protected_router.get(endpoint.route, endpoint.handler);
+                }
             }
         } else {
             if (endpoint.method && endpoint.method === "POST"){

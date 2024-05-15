@@ -11,8 +11,12 @@ import { check_user_permission } from "../../../../modules/app_manager";
  * @param res 
  */
 export default async function get_product_categories(req: Request, res: Response){
-    const { parent_id} = req.body as {parent_id?: string;};
-    const {user} = req.body as {user: AuthenticatedUser};
+    //const { parent_id} = req.body as {parent_id?: string;};
+    const user = req.user;
+
+    // get optional GET parameters , parent_id and populate
+    const { parent_id, populate } = req.query as { parent_id?: string , populate?: string};
+
 
     // get user's company
     if (!user.company) return res.status(400).json({message: "User does not belong to a company"});
@@ -33,6 +37,9 @@ export default async function get_product_categories(req: Request, res: Response
     }
     // create product category
     const cats = await ProductCategory.find(query);
+    if (populate) {
+        await ProductCategory.populate(cats, { path: "parent", select: ["name", "_id"] });
+    }
 
     res.status(200).json(cats);
 }

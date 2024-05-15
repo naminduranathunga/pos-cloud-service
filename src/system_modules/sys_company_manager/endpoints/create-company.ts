@@ -22,7 +22,7 @@ interface ComapanyDetailsBody {
  */
 export default async function create_new_company(req: Request, res: Response){
     const company = req.body as ComapanyDetailsBody;
-    const user = company.user;
+    const user = req.user;
 
     // permission validation
     // only super-admins

@@ -19,6 +19,7 @@ import { add_api_endpoints, load_modules } from './modules/app_manager';
 import bodyParser from 'body-parser';
 import { db_connect } from './middleware/db_connect';
 import cors, { CorsOptions } from 'cors';
+import multer from 'multer';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -32,6 +33,12 @@ const corsOptions:CorsOptions = {
   origin: '*',
   optionsSuccessStatus: 200
 };
+//
+const memoryStorage = multer.memoryStorage();
+const uploads = multer({ storage: memoryStorage, limits: {
+  fileSize: process.env.UPLOADS_MAX_SIZE ? parseInt(process.env.UPLOADS_MAX_SIZE) : 1024 * 1024
+}});
+//app.use(uploads.any());
 app.use(cors(corsOptions));
 app.use(db_connect);
 

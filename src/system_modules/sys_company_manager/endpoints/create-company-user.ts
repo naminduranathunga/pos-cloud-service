@@ -25,7 +25,7 @@ interface ComapanyUserBody {
  */
 export default async function create_new_company_user(req: Request, res: Response){
     const comp_user = req.body as ComapanyUserBody;
-    const {user} = req.body as {user:any}; // authentication
+    const user = req.user;
 
     // permission validation
     // only super-admins

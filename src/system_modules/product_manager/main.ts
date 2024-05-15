@@ -19,6 +19,10 @@ import config from "./config";
 import create_product_category from "./endpoints/categories/create_product_category";
 import get_product_categories from "./endpoints/categories/get_product_categories";
 import remove_product_category from "./endpoints/categories/remove_product_category";
+import add_thumbnail_for_product, { add_thumbnail_upload_multer } from "./endpoints/products/add_thumbnail_for_product";
+import create_single_product from "./endpoints/products/create_product";
+import get_product_thumbnail from "./endpoints/products/get_product_thumbnail";
+import get_products from "./endpoints/products/get_products";
 import { safe_delete_product_categories } from "./events/categories/safe_delete_product_categories";
 
 /** Init the module */
@@ -59,5 +63,34 @@ export function init_module(){
 
 
 
-    
+    register_api_endpoint({
+        method: 'POST',
+        route: '/product-manager/products/create',
+        is_protected: true,
+        handler: create_single_product,
+    });
+
+    register_api_endpoint({
+        method: 'GET',
+        route: '/product-manager/products/get',
+        is_protected: true,
+        handler: get_products,
+    });
+
+    register_api_endpoint({
+        method: 'POST',
+        route: '/product-manager/products/add-thumbnail',
+        is_protected: true,
+        handler: add_thumbnail_for_product,
+        middlewares: [
+            add_thumbnail_upload_multer
+        ]
+    });
+
+    register_api_endpoint({
+        method: 'GET',
+        route: '/product-manager/products/get-thumbnail',
+        is_protected: false,
+        handler: get_product_thumbnail,
+    });
 }

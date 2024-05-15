@@ -20,7 +20,7 @@ interface ComapanyDetailsBody {
  */
 export default async function get_company_list(req: Request, res: Response){
     const params = req.body as ComapanyDetailsBody;
-    const {user} = req.body as {user:any}; // authentication
+    const user = req.user;
 
     // permission validation
     // only super-admins

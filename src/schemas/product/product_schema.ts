@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
-const ProductCategorySchema = new mongoose.Schema({
+const ProductSchema = new mongoose.Schema({
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        required: true
+    },
     name: {
         type: String,
         required: true
@@ -49,3 +54,6 @@ const ProductCategorySchema = new mongoose.Schema({
         required: false
     },
 });
+
+const Product = mongoose.model("Product", ProductSchema);
+export default Product;

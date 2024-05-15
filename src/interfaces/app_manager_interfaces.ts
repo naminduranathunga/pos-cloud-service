@@ -10,7 +10,8 @@ export interface AppApiEndpoint {
     route: string,
     is_protected: boolean,
     method?: string, 
-    handler: (req: Request, res: Response) => void
+    handler: (req: Request, res: Response) => void,
+    middlewares?: any[]
 };
 
 export interface AppSingleModule {
