@@ -1,5 +1,4 @@
-import e, { Request, Response } from "express";
-import { AuthenticatedUser } from "../../../../interfaces/jwt_token_user";
+import { Request, Response } from "express";
 import { check_user_permission } from "../../../../modules/app_manager";
 import Product from "../../../../schemas/product/product_schema";
 
@@ -10,6 +9,7 @@ interface GetProductProps {
     search_term?: string;
     barcode?: string;
     status?: string; // active, inactive, all -- default all
+    _id?: string;
 }
 
 export default async function get_products(req: Request, res: Response) {
@@ -24,7 +24,7 @@ export default async function get_products(req: Request, res: Response) {
         return;
     }
 
-    var { page, per_page, search_term, barcode, status } = req.query as GetProductProps;
+    var { page, per_page, search_term, barcode, status, _id } = req.query as GetProductProps;
 
 
     // validate request
@@ -44,6 +44,8 @@ export default async function get_products(req: Request, res: Response) {
     } else if (barcode) {
         // in barcodes
         query["barcodes"] = { $in: [barcode] };
+    } else if (_id){
+        query['_id'] = _id;
     }
 
     if (status && status == "active"){

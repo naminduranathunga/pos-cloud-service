@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import { AuthenticatedUser } from "../../../../interfaces/jwt_token_user";
 import { check_user_permission } from "../../../../modules/app_manager";
 import Product from "../../../../schemas/product/product_schema";
+import mongoose from "mongoose";
 
 
 interface CreateProductProps {
     name: string;
     sku: string;
     inventory_type: string;
-    category: string;
+    category?: string;
     is_active: boolean;
     prices: Array<number>;
     barcodes?: Array<string>;
@@ -50,7 +50,7 @@ export default async function create_single_product(req: Request, res: Response)
         name,
         sku,
         inventory_type,
-        category,
+        category: category?mongoose.Types.ObjectId.createFromHexString(category):null,
         is_active,
         prices: prices,
         barcodes: barcodes || [],   

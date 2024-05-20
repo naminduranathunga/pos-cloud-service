@@ -7,6 +7,7 @@
 import express from 'express';
 import { AppApiEndpoint, AppEvent, AppSingleModule, UserPermissionType } from '../interfaces/app_manager_interfaces';
 import { AuthenticatedUser } from '../interfaces/jwt_token_user';
+import { error_handler_wrapper } from './error_handler_wrapper';
 
 var event_handlers = new Map<string, AppEvent[]>();
 var api_endpoints = new Map<string, AppApiEndpoint>();
@@ -85,35 +86,36 @@ export function load_modules(){
 
 
 
+
 // add api endpoints to express app
 export function add_api_endpoints(guest_router:express.Router, protected_router:express.Router){
     api_endpoints.forEach((endpoint:AppApiEndpoint) => {
         if (endpoint.is_protected === true){
             if (endpoint.method && endpoint.method === "POST"){
                 if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    protected_router.post(endpoint.route, endpoint.middlewares, endpoint.handler);
+                    protected_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
                 } else{
-                    protected_router.post(endpoint.route, endpoint.handler);
+                    protected_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
                 }
             } else {
                 if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    protected_router.get(endpoint.route, endpoint.middlewares, endpoint.handler);
+                    protected_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
                 } else {
-                    protected_router.get(endpoint.route, endpoint.handler);
+                    protected_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
                 }
             }
         } else {
             if (endpoint.method && endpoint.method === "POST"){
                 if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    guest_router.post(endpoint.route, endpoint.middlewares, endpoint.handler);
+                    guest_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
                 }else {
-                    guest_router.post(endpoint.route, endpoint.handler);
+                    guest_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
                 }
             } else {
                 if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    guest_router.get(endpoint.route, endpoint.middlewares, endpoint.handler);
+                    guest_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
                 } else {
-                    guest_router.get(endpoint.route, endpoint.handler);
+                    guest_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
                 }
             }
         }

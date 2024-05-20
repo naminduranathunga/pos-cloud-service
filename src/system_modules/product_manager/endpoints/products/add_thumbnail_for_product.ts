@@ -60,5 +60,5 @@ export default async function add_thumbnail_for_product(req: Request, res: Respo
     product.thumbnail = thumbnail_file_name;
     await product.save();
 
-    return res.status(200).json({message: "Thumbnail added successfully"});
+    return res.status(200).json({message: "Thumbnail added successfully", thumbnail: thumbnail_file_name});
 }

@@ -20,6 +20,7 @@ import bodyParser from 'body-parser';
 import { db_connect } from './middleware/db_connect';
 import cors, { CorsOptions } from 'cors';
 import multer from 'multer';
+import errorHandler from './middleware/error_handler';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -74,6 +75,11 @@ add_api_endpoints(router, protected_router);
 
 app.use('/api/v1', router);
 app.use('/api/v1', protected_router);
+
+
+// the last middleware to catch all errors
+app.use(errorHandler);
+
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
