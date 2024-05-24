@@ -8,13 +8,13 @@ console.log("seeding database...")
 
 async function seed() {
     await ConnectMongoDB();
-    console.log("connected to MongoDB")
+    console.log("connected to MongoDB");
 
-    // Add seed data here
+    // Add seed data here 
     await seed_user_roles();
     await seed_users();
 
-    console.log("seeded successfully")
+    console.log("seeded successfully");
 }
 
 seed().then(() => {
