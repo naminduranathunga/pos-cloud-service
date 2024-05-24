@@ -3,5 +3,17 @@
         "module_name": "Hello World",
         "module_path": "hello-world",
         "start_point": "hello-world/main.js"
+    },
+    {
+        "module_name": "Product Manager",
+        "module_path": "product_manager",
+        "version": "1.0.0",
+        "start_point": "product_manager/main.js"
+    },
+    {
+        "module_name": "System Company Manager",
+        "module_path": "system_company_manager",
+        "version": "1.0.0",
+        "start_point": "sys_company_manager/main.js"
     }
 ]

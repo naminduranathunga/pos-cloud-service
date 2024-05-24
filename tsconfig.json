@@ -8,5 +8,9 @@
       "outDir": "dist",
       "resolveJsonModule": true
     },
+    "include": [
+      "src/**/*.ts",
+      "seeders/**/*.ts"
+    ],
     "lib": ["es2015"]
   }

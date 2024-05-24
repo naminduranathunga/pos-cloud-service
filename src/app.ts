@@ -16,6 +16,11 @@ import express from 'express';
 import UserLogin from './user_login';
 import { auth } from './middleware/auth';
 import { add_api_endpoints, load_modules } from './modules/app_manager';
+import bodyParser from 'body-parser';
+import { db_connect } from './middleware/db_connect';
+import cors, { CorsOptions } from 'cors';
+import multer from 'multer';
+import errorHandler from './middleware/error_handler';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,7 +28,20 @@ const port = process.env.PORT || 3000;
 //--------------------------------------------
 // initilize middlewares here
 //--------------------------------------------
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+const corsOptions:CorsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200
+};
+//
+const memoryStorage = multer.memoryStorage();
+const uploads = multer({ storage: memoryStorage, limits: {
+  fileSize: process.env.UPLOADS_MAX_SIZE ? parseInt(process.env.UPLOADS_MAX_SIZE) : 1024 * 1024
+}});
+//app.use(uploads.any());
+app.use(cors(corsOptions));
+app.use(db_connect);
 
 
 //--------------------------------------------
@@ -43,7 +61,8 @@ app.get('/', (req, res) => {
 const router = express.Router();
 
 // login route
-router.get('/login', UserLogin);
+//router.get('/login', UserLogin);
+router.post('/login', UserLogin);
 
 /**
  * these route are only accessible via a valid token in header
@@ -56,6 +75,11 @@ add_api_endpoints(router, protected_router);
 
 app.use('/api/v1', router);
 app.use('/api/v1', protected_router);
+
+
+// the last middleware to catch all errors
+app.use(errorHandler);
+
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);

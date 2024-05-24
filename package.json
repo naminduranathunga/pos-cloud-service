@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/app.js",
     "dev": "nodemon --watch src -e ts,js,conf,json --exec \"tsc && node dist/app.js\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "node dist/seeders/seed.js"
   },
   "keywords": [],
   "author": "",
@@ -21,9 +22,17 @@
     "typescript-eslint": "^7.7.1"
   },
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/multer": "^1.4.11",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.3.2"
+    "mongoose": "^8.3.2",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.3"
   }
 }

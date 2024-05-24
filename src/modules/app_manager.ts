@@ -5,11 +5,14 @@
  */
 
 import express from 'express';
-import { AppApiEndpoint, AppEvent, AppSingleModule } from '../interfaces/app_manager_interfaces';
+import { AppApiEndpoint, AppEvent, AppSingleModule, UserPermissionType } from '../interfaces/app_manager_interfaces';
+import { AuthenticatedUser } from '../interfaces/jwt_token_user';
+import { error_handler_wrapper } from './error_handler_wrapper';
 
 var event_handlers = new Map<string, AppEvent[]>();
 var api_endpoints = new Map<string, AppApiEndpoint>();
 var modue_list = [];
+var user_permission_list = Array<UserPermissionType>();
 
 
 /**
@@ -60,24 +63,95 @@ export function load_modules(){
     const fs = require('fs');
     const modules = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../data/system_modules.json")
         , 'utf8'));
-
+    console.log("Loading modules...");
     modules.forEach((module_single:AppSingleModule) => {
-        const module = require(`../system_modules/${module_single.start_point}`);
-        module.init_module();
-        modue_list.push(module_single);
+        try {
+            const module = require(`../system_modules/${module_single.start_point}`);
+            if (typeof(module.init_module) === "function"){
+                module.init_module();
+            } else {
+                console.log("Module " + module_single.module_name + " \x1b[31m \"init_module\" function not defined.\x1b[0m");
+                return;
+            }
+            modue_list.push(module_single);
+            console.log("Module " + module_single.module_name + " \x1b[32mloaded.\x1b[0m");
+        } catch (error) {
+            console.log("Module " + module_single.module_name + " \x1b[31merror.\x1b[0m");
+            console.log(error);
+        }
+        
+        
     });
 } 
 
 
 
-// add api endpoints to express app
 
+// add api endpoints to express app
 export function add_api_endpoints(guest_router:express.Router, protected_router:express.Router){
     api_endpoints.forEach((endpoint:AppApiEndpoint) => {
-        if (endpoint.is_protected){
-            protected_router.get(endpoint.route, endpoint.handler);
+        if (endpoint.is_protected === true){
+            if (endpoint.method && endpoint.method === "POST"){
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    protected_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                } else{
+                    protected_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+                }
+            } else {
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    protected_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                } else {
+                    protected_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                }
+            }
         } else {
-            guest_router.get(endpoint.route, endpoint.handler);
+            if (endpoint.method && endpoint.method === "POST"){
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    guest_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                }else {
+                    guest_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+                }
+            } else {
+                if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                    guest_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                } else {
+                    guest_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                }
+            }
         }
     });
+}
+
+
+/**
+ * Register user permissions
+ */
+export function register_user_permissions(permission:string, label:string, module_name:string, allowed_roles?:string[]){
+    if (!allowed_roles){
+        allowed_roles = ['admin'];
+    }
+    user_permission_list.push({name:permission, label, module:module_name, allowed_roles});
+}
+
+/**
+ * Return all registered permissions
+ */
+export default function get_user_permissions(module_name?: string):UserPermissionType[]{
+    if (module_name){
+        return user_permission_list.filter((permission:UserPermissionType) => permission.module === module_name);
+    }
+    return user_permission_list;
+}
+
+/**
+ * Check whether the given user has permission to access the given module
+ */
+export function check_user_permission(user:AuthenticatedUser, permission_name:string):boolean{
+    if (user.role.permissions.includes('super-admin-permissions')){
+        return true;
+    }
+    if (user.role.permissions.includes(permission_name)){
+        return true;
+    }
+    return false;
 }
