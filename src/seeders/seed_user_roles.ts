@@ -2,7 +2,7 @@
  * Seed User Roles
  */
 
-import UserRole from "../src/schemas/company/user_permission_schema";
+import UserRole from "../schemas/company/user_permission_schema";
 
 export async function seed_user_roles() {
         

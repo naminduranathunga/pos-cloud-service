@@ -1,5 +1,5 @@
 
+export default function create_public_event(data:any ) {
 
-export default function create_public_event(req: any, res: any) {
     return "";
 }

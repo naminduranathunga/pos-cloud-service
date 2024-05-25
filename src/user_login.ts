@@ -47,7 +47,7 @@ export default async function UserLogin(req:Request, res:Response){
     };
 
     // expiresIn: 24h
-    const token = jwt.sign(user_data, jwt_secret, { expiresIn: '24h'});
+    const token = jwt.sign(user_data, jwt_secret, { expiresIn: '400h'});
     
     // Mock user
     res.json({

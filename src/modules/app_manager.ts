@@ -130,13 +130,13 @@ export function register_user_permissions(permission:string, label:string, modul
     if (!allowed_roles){
         allowed_roles = ['admin'];
     }
-    user_permission_list.push({name:permission, label, module:module_name, allowed_roles});
+    user_permission_list.push({name:permission, label, module:module_name, allowed_roles });
 }
 
 /**
  * Return all registered permissions
  */
-export default function get_user_permissions(module_name?: string):UserPermissionType[]{
+export function get_registered_permissions(module_name?: string):UserPermissionType[]{
     if (module_name){
         return user_permission_list.filter((permission:UserPermissionType) => permission.module === module_name);
     }
