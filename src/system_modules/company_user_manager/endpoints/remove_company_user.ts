@@ -1,7 +1,4 @@
-import e from "express";
-import reserved_roles from "../../../lib/reserved_roles";
 import { check_user_permission } from "../../../modules/app_manager";
-import UserRole from "../../../schemas/company/user_permission_schema";
 import User from "../../../schemas/company/user_schema";
 
 interface ComapanyUserBody {
@@ -23,13 +20,13 @@ export default async function delete_company_user(req: any, res: any) {
     };
 
     // get the user
-    const user_todel = await (await User.findOne({_id: _id, company: company})).populated('role');
+    const user_todel = await User.findOne({_id: _id, company: company}).populate('role') as any;
     if (!user_todel){
         return res.status(400).json({ message: 'User not found' });
     }
 
     // check if the user is the only admin
-    if (user_todel.role.slug === 'company-admin'){
+    if (user_todel.role.slug === 'company-admin' || user_todel._id === user._id){
         const admins = await User.find({company: company, role: user_todel.role});
         if (admins.length === 1){
             return res.status(400).json({ message: 'You cannot delete the only admin' });

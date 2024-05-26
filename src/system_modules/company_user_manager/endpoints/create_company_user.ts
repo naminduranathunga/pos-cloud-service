@@ -27,7 +27,8 @@ export default async function create_company_user(req: any, res: any) {
     };
 
     const userRole = await UserRole.findById(role_id);
-    if (!userRole || (userRole.company && userRole.company.toString() !== company.toString())){
+    if (!userRole || (userRole.is_public !== true && userRole.company && userRole.company.toString() !== company.toString())){
+        console.log('userRole', userRole);
         res.status(400).json({
             message: "User role does not exists."
         });

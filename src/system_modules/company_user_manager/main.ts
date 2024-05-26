@@ -24,6 +24,7 @@ import get_user_roles from "./endpoints/get_user_roles";
 import delete_company_user from "./endpoints/remove_company_user";
 import delete_company_user_role from "./endpoints/remove_user_role";
 import update_company_user from "./endpoints/update_company_user";
+import update_user_role from "./endpoints/update_user_role";
 
 /** Init the module */
 export function init_module(){
@@ -45,6 +46,13 @@ export function init_module(){
         route: '/user-manager/roles/create',
         is_protected: true,
         handler: create_user_role,
+    });
+    
+    register_api_endpoint({
+        method: 'POST',
+        route: '/user-manager/roles/update',
+        is_protected: true,
+        handler: update_user_role,
     });
 
     register_api_endpoint({
