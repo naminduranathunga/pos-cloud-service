@@ -1,0 +1,23 @@
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: namindus8
+      MONGO_INITDB_ROOT_PASSWORD: BMju1pd1fmOyJpAD
+
+  app:
+    build: .
+    container_name: app
+    restart: always
+    ports:
+      - "12001:12001"
+    
+    env_file:
+      - docker.env

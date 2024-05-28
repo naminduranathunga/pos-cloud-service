@@ -10,7 +10,6 @@
     },
     "include": [
       "src/**/*.ts",
-      "seeders/**/*.ts"
     ],
     "lib": ["es2015"]
   }

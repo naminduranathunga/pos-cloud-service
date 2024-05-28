@@ -8,7 +8,8 @@ export default async function ConnectMongoDB(){
     const user = process.env.MONGODB_USER || "";
     const pass = process.env.MONGODB_PASSWORD || "";
     const db = process.env.MONGODB_DB_NAME || "test";
-    const MongoDBURL = `mongodb://${user}:${pass}@${host}/${db}`;
+    const protocol = process.env.MONGODB_PROTOCOL || "mongodb+srv";
+    const MongoDBURL = `${protocol}://${user}:${pass}@${host}/${db}`;
     if (!MongoDBURL) {
         throw new Error("MongoDB URL not found: " + MongoDBURL);
     }

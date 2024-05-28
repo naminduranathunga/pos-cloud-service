@@ -23,6 +23,11 @@ const UserRolesSchema = new Schema({
         ref: "Company",
         required: false,
     },
+    is_public: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
 });
 
 const UserRole = model("UserRole", UserRolesSchema);

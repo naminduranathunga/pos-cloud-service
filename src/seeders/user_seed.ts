@@ -1,6 +1,6 @@
 
-import User from "../src/schemas/company/user_schema";
-import UserRole from "../src/schemas/company/user_permission_schema";
+import User from "../schemas/company/user_schema";
+import UserRole from "../schemas/company/user_permission_schema";
 import { hash } from 'bcrypt'
 
 

@@ -11,6 +11,12 @@
         "start_point": "product_manager/main.js"
     },
     {
+        "module_name": "Company User Manager",
+        "module_path": "company_user_manager",
+        "version": "1.0.0",
+        "start_point": "company_user_manager/main.js"
+    },
+    {
         "module_name": "System Company Manager",
         "module_path": "system_company_manager",
         "version": "1.0.0",

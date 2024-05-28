@@ -1,4 +1,4 @@
-import ConnectMongoDB from "../src/lib/connect_mongodb"
+import ConnectMongoDB from "../lib/connect_mongodb"
 import { seed_user_roles } from "./seed_user_roles";
 import { seed_users } from "./user_seed";
 import { config } from 'dotenv';
