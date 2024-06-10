@@ -21,6 +21,7 @@ import { db_connect } from './middleware/db_connect';
 import cors, { CorsOptions } from 'cors';
 import multer from 'multer';
 import errorHandler from './middleware/error_handler';
+import ConnectMongoDB from './lib/connect_mongodb';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -54,6 +55,16 @@ app.get('/', (req, res) => {
   res.send('Hello World! 3');
 });
 
+app.get('/test', (req, res) => {
+  try {
+    res.send('Hello World! 3');
+    ConnectMongoDB();
+
+  } catch (error:any) {
+    console.error(error);
+    res.status(500).send('Internal Server Error. '+ error.message);
+  }
+});
 //--------------------------------------------
 // define api endpoint routes here
 //--------------------------------------------

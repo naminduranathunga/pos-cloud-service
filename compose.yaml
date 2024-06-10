@@ -6,9 +6,11 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./data_db:/data/db
 
     environment:
+      MONGO_INITDB_DATABASE: test-pos
       MONGO_INITDB_ROOT_USERNAME: namindus8
       MONGO_INITDB_ROOT_PASSWORD: BMju1pd1fmOyJpAD
 
@@ -20,4 +22,9 @@ services:
       - "12001:12001"
     
     env_file:
-      - docker.env
+      - .env.docker
+    depends_on:
+      - mongo
+
+    
+  
