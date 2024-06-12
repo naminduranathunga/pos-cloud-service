@@ -12,7 +12,7 @@ const BranchSchema = new Schema({
     },
     address: {
         type: String,
-        required: true
+        required: false
     },
     phone: {
         type: Array<String>,
