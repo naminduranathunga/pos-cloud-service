@@ -3,7 +3,7 @@ import { check_user_permission } from "../../../modules/app_manager";
 
 export default async function update_company(req, res) {
     const user = req.user;
-    const { _id, name, address, phone, email, brn } = req.body;
+    const { _id, name, address, phone, email, brn, isActive } = req.body;
 
     if (!user) {
         return res.status(401).json({ message: 'Unauthorized' });
@@ -44,6 +44,11 @@ export default async function update_company(req, res) {
 
     if (brn && brn !== company.brn) {
         company.brn = brn;
+        is_edited = true;
+    }
+
+    if (typeof isActive === 'boolean' && isActive !== company.isActive) {
+        company.isActive = isActive;
         is_edited = true;
     }
 

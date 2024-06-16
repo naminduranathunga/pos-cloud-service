@@ -33,6 +33,11 @@ const CompanySchema = new Schema({
         type: Array<Schema.Types.ObjectId>,
         required: false,
         default: []
+    },
+    isActive: {
+        type: Boolean,
+        required: false,
+        default: true
     }
 });
 
