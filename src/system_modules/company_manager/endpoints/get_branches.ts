@@ -4,19 +4,24 @@ import Branch from "../../../schemas/company/branches_schema";
 import mongoose from "mongoose";
 
 interface request_body {
-    company_id: string;
+    company_id?: string;
     branch_id?: string;
 }
 
 export default async function get_branches(req: Request, res: Response){
     const user = req.user;
-    const {company_id, branch_id} = req.body() as request_body;
+    const {branch_id} = req.query as unknown as request_body;
 
     // to get branch details, he must have permissions
-    if (user.company !== company_id && !check_user_permission(user, 'super-admin')){
+    
+    /*if ((!company_id || user.company !== company_id) && !check_user_permission(user, 'super-admin')){
         res.status(403).json({message:"Don't have permissions"})
+    }*/
+   if (!user.company){
+        res.status(401).json({message:"User does not belong to any company"})
     }
-    let args:any = {company:company_id};
+
+    let args:any = {company:user.company};
     if (branch_id){
         if (mongoose.Types.ObjectId.isValid(branch_id)){
             const branch_id_ = mongoose.Types.ObjectId.createFromHexString(branch_id);
