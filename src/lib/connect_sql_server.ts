@@ -1,38 +1,54 @@
-import { createConnection } from 'mysql';
+import mysql from 'mysql2/promise';
+import { decrypt_company_db_password } from './company_db_passwords';
 
-const ConnectMySQL = async () =>{
+const ConnectMySQL = async (with_db=true, multipleStatements=false) =>{
     const user = process.env.MYSQL_USER || 'root';
-    const password = process.env.MYSQL_PASSWORD || 'password';
-    const database = process.env.MYSQL_DATABASE || 'database';
+    const password = process.env.MYSQL_PASSWORD || '';
+    const database = process.env.MYSQL_DB_NAME || 'database';
     const port = parseInt(process.env.MYSQL_PORT) || 3306;
     const host = process.env.MYSQL_HOST || 'localhost';
 
-    const connection = createConnection({
-        host,
-        user,
-        password,
-        database,
-        port,
-    });
-
-    connection.connect();
+    let connection:mysql.Connection;
+    if (with_db){
+        connection = await mysql.createConnection({
+            host,
+            user,
+            password,
+            database,
+            port,
+            multipleStatements,
+        });
+    } else {
+        connection = await mysql.createConnection({
+            host,
+            user,
+            password,
+            port,
+            multipleStatements,
+        });
+    }
     return connection;
 }
 
 export default ConnectMySQL;
 
 
-export const ConnectMySQLCompanyDb = async (user, password, database) => {
+export const ConnectMySQLCompanyDb = async (company:any, multipleStatements=false) => {
+    const user = company.company_database?.username;
+    const enc_password = company.company_database?.password;
+    const database = company.company_database?.name;
+    const password = decrypt_company_db_password(enc_password);
+
     const port = parseInt(process.env.MYSQL_PORT) || 3306;
     const host = process.env.MYSQL_HOST || 'localhost';
-    const connection = createConnection({
+    const connection = mysql.createConnection({
         host,
         user,
         password,
         database,
         port,
+        multipleStatements,
     });
 
-    connection.connect();
     return connection;
 }

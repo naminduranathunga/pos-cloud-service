@@ -33,6 +33,16 @@ const CompanySchema = new Schema({
         type: Array<Schema.Types.ObjectId>,
         required: false,
         default: []
+    },
+    company_data:{
+        type: Map<String, String>,
+        required: false,
+    },
+    company_database: {
+        name: String,
+        username: String,
+        password: String,
+        host: String
     }
 });
 

@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
-import ProductCategory from "../../../../schemas/product/product_category_schema";
+//import ProductCategory from "../../../../schemas/product/product_category_schema";
 import { AuthenticatedUser } from "../../../../interfaces/jwt_token_user";
 import { check_user_permission } from "../../../../modules/app_manager";
+import { ConnectMySQLCompanyDb } from "../../../../lib/connect_sql_server";
+import Company from "../../../../schemas/company/company_scema";
+import ProductCategory from "../../interfaces/product_category";
 
 
 /**
@@ -15,8 +18,10 @@ export default async function get_product_categories(req: Request, res: Response
     const user = req.user;
 
     // get optional GET parameters , parent_id and populate
-    const { parent_id, populate } = req.query as { parent_id?: string , populate?: string};
-
+    var { parent_id } = req.query as { parent_id?: any};
+    if (parent_id){
+        parent_id = parseInt(parent_id);
+    }
 
     // get user's company
     if (!user.company) return res.status(400).json({message: "User does not belong to a company"});
@@ -27,19 +32,34 @@ export default async function get_product_categories(req: Request, res: Response
         });
         return;
     }
+
     // validation 
-    // get parent category
-    var query: { company: string, parent?: string } = { company: user.company };
+    if (parent_id && typeof(parent_id) !== "number") return res.status(400).json({message: "parent_id must be a number"});
+
+
+    const company = await Company.findOne({_id: user.company});
+    const conn = await ConnectMySQLCompanyDb(company);
+    
+    let sql = `SELECT categories.*, parent.name as parent_name 
+    FROM categories 
+    LEFT JOIN categories as parent ON categories.parent_id=parent.id`;
+    let rows: Array<any>;
     if (parent_id) {
-        const parent = ProductCategory.findOne({ _id: parent_id, company: user.company });
-        if (!parent) return res.status(400).json({ message: "Parent category not found" });
-        query.parent = parent_id;
+        sql += ` WHERE categories.parent_id = ?;`;
+        [rows] = await conn.query<Array<any>>(sql, [parent_id]);
+    } else {
+        [rows] = await conn.query<Array<any>>(sql);
     }
-    // create product category
-    const cats = await ProductCategory.find(query);
-    if (populate) {
-        await ProductCategory.populate(cats, { path: "parent", select: ["name", "_id"] });
-    }
+    console.log(sql);
+    let cats: Array<ProductCategory> = [];
+    console.log(rows); 
+    cats = rows.map((row) => {
+        return {
+            id: row.id,
+            name: row.name,
+            parent_id: (row.parent_id) ? {id: row.parent_id, name: row.parent_name} : null
+        }
+    });
 
     res.status(200).json(cats);
 }

@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { check_user_permission } from "../../../../modules/app_manager";
 import Product from "../../../../schemas/product/product_schema";
+import Company from "../../../../schemas/company/company_scema";
+import { ConnectMySQLCompanyDb } from "../../../../lib/connect_sql_server";
+import ProductSingle from "../../interfaces/product_single";
 
 
 interface GetProductProps {
@@ -9,8 +12,11 @@ interface GetProductProps {
     search_term?: string;
     barcode?: string;
     status?: string; // active, inactive, all -- default all
-    _id?: string;
+    id?: string;
 }
+
+// products can get either by barcode, search term, or id
+
 
 export default async function get_products(req: Request, res: Response) {
     const user = req.user;
@@ -24,47 +30,85 @@ export default async function get_products(req: Request, res: Response) {
         return;
     }
 
-    var { page, per_page, search_term, barcode, status, _id } = req.query as GetProductProps;
+    var { page, per_page, search_term, barcode, status, id } = req.query as GetProductProps;
 
 
     // validate request
-    if (!page) page = 1;
-    if (!per_page) per_page = 100;
+    if (!page) {
+        page = 1;
+    } else {
+        page = parseInt(String(page));
+    }
+
+    if (!per_page){
+        per_page = 100;
+    } else {
+        per_page = parseInt(String(per_page));
+    }
 
     if (search_term) {
         search_term = search_term.trim();
+        // remove any wildcards
+        search_term = search_term.replace(/%/g, "");
+        search_term = `%${search_term}%`;
     }
 
-    var query: { company: string } = { company: user.company };
+    
+    const company = await Company.findOne({_id: user.company});
+    const conn = await ConnectMySQLCompanyDb(company);
+
+    const barcode_select = `
+    (SELECT GROUP_CONCAT(barcode SEPARATOR ', ') 
+     FROM product_barcodes 
+     WHERE product_barcodes.product_id = products.id) AS barcodes`;
+
+    var sql = `SELECT products.*, ${barcode_select} FROM products`;
+    var vars = [];
     if (search_term) {
-        query["$or"] = [
-            { name: { $regex: search_term, $options: "i" } },
-            { sku: { $regex: search_term, $options: "i" } },
-        ];
+        sql += ` WHERE name LIKE ? OR sku LIKE ?`;
+        vars.push(search_term);
+        vars.push(search_term);
     } else if (barcode) {
-        // in barcodes
-        query["barcodes"] = { $in: [barcode] };
-    } else if (_id){
-        query['_id'] = _id;
+        sql = `SELECT products.*, ${barcode_select} FROM products LEFT JOIN product_barcodes ON product_barcodes.product_id = products.id 
+                WHERE product_barcodes.barcode = ?`;
+        vars.push(barcode);
+    } else if (id){
+        sql += ` WHERE id = ?`;
+        vars.push(id);
+    } else {
+        sql += ` WHERE 1`;
     }
+
 
     if (status && status == "active"){
-        query["is_active"] = true;
+        sql += ` AND is_active = 1`;
     } else if (status && status == "inactive"){
-        query["is_active"] = false;
+        sql += ` AND is_active = 0`;
     }
-    
 
-    try {
-        const products = await Product.find(query).skip((page - 1) * per_page).limit(per_page);
-        res.status(200).json(products);
-    } catch (error) {
-        let resp = {
-            message: "Error creating product"
-        };
-        if (process.env.DEBUG) {
-            resp["error"] = error;
+    let offset = (page - 1) * per_page;
+    sql += ` LIMIT ?, ?`;
+    vars.push(offset);
+    vars.push(per_page);
+
+    const [rows] = await conn.query<Array<any>>(sql, vars);
+
+    let products:ProductSingle[] = rows.map((row:any) => {
+        const barcodes = row.barcodes.split(", ");
+        return {
+            id:row.id,
+            name: row.name,
+            sku: row.sku,
+            thumbnail: row.thumbnail,
+            inventory_type: row.inventory_type,
+            category: row.category_id,
+            is_active: row.is_active,
+            size: row.size,
+            weight: row.weight,
+            barcodes: barcodes,
         }
-        res.status(500).json(resp);
-    }
+    });
+
+    return res.json(products);
 }
+//0.0039s
