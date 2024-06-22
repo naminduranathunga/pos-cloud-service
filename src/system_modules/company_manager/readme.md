@@ -4,6 +4,7 @@ From the user's end, here we manage customer's company details.
 
 ## Services
 
+0. View Company Profile
 1. Create Branch 
 2. Update Branch
 3. Delete Branch
@@ -11,6 +12,10 @@ From the user's end, here we manage customer's company details.
 5. Get Branch details - 
 6. Update Company profile
 7. Manage Company Data - These data like next sales order number, next invoice number, etc.
+
+## 0. View Company Profile
+
+Allows to view company details like company name, address, contact details, etc.
 
 ## 1. Create a branch
 

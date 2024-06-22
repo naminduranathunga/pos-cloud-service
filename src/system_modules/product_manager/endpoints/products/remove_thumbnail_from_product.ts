@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { check_user_permission } from "../../../../modules/app_manager";
 import Product from "../../../../schemas/product/product_schema";
 import { unlink } from "fs/promises";
+import Company from "../../../../schemas/company/company_scema";
+import { ConnectMySQLCompanyDb } from "../../../../lib/connect_sql_server";
 /**
  * Unlike  normal requests, this uses multer for parsing the body
  * for multipart form-data
@@ -20,22 +22,38 @@ export default async function remove_thumbnail_from_product(req: Request, res: R
         return;
     }
 
-    const {product_id} = req.body as {product_id: string};
+    var {product_id} = req.body as {product_id: any};
 
     // validate request
     if (!product_id) return res.status(400).json({message: "Product ID is required"});
+    product_id = parseInt(product_id);
 
-    const product = await Product.findOne({company: user.company, _id: product_id});
-    if (!product) return res.status(400).json({message: "Product does not exist"});
+    const company = await Company.findOne({_id: user.company});
+    const conn = await ConnectMySQLCompanyDb(company);
 
     const upload_path = process.env.UPLOADS_DIR || 'uploads';
-    const full_path = `${upload_path}/${product.thumbnail}`;
+    
     
     try{
+        conn.beginTransaction();
+        // check if the product exists
+        let sql = `SELECT thumbnail FROM products WHERE id = ?`;
+        const [rows] = await conn.query<Array<any>>(sql, [product_id]);
+
+        if (rows.length < 1) {
+            conn.rollback();
+            return res.status(400).json({message: "Product does not exist"});
+        }
+
+
+        const full_path = `${upload_path}/${rows[0].thumbnail}`;
         await unlink(full_path);
-        product.thumbnail = "";
-        await product.save();
+        sql = `UPDATE products SET thumbnail = NULL WHERE id = ?`;
+        await conn.query(sql, [product_id]);
+        conn.commit();
+        
     }catch(e){
+        conn.rollback();
         let resp = {
             message: "Failed to delete thumbnail",
         }

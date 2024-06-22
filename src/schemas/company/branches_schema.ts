@@ -7,12 +7,12 @@ const BranchSchema = new Schema({
         required: true
     },
     name: {
-        type: String,
+        type: String, 
         required: true
     },
     address: {
         type: String,
-        required: true
+        required: false
     },
     phone: {
         type: Array<String>,
@@ -23,6 +23,11 @@ const BranchSchema = new Schema({
         type: String,
         required: false,
         default: ""
+    },
+    metadata: {
+        type: Object,
+        required: false,
+        default: {}
     }
 })
 
