@@ -19,7 +19,8 @@ export async function seed_user_roles() {
         name: "Admin",
         slug: "company-admin",
         description: "Admin - For company administration",
-        permissions: ["all-company"],
+        permissions: ["company-admin"],
+        is_public: true,
     });
     await admin.save();
 }

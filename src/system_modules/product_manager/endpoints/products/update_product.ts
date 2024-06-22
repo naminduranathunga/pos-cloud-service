@@ -1,18 +1,16 @@
 import { Request, Response } from "express";
-import { AuthenticatedUser } from "../../../../interfaces/jwt_token_user";
 import { check_user_permission } from "../../../../modules/app_manager";
-import Product from "../../../../schemas/product/product_schema";
-import mongoose from "mongoose";
-
+import Company from "../../../../schemas/company/company_scema";
+import { ConnectMySQLCompanyDb } from "../../../../lib/connect_sql_server";
+import ProductSingle from "../../interfaces/product_single";
 
 interface CreateProductProps {
-    _id: string;
+    id: number;
     name?: string;
     sku?: string;
     inventory_type?: string;
-    category?: string;
+    category?: number | null;
     is_active?: boolean;
-    prices?: Array<number>;
     barcodes?: Array<string>;
     size?: string;
     weight?: string;
@@ -37,72 +35,117 @@ export default async function update_single_product(req: Request, res: Response)
         return;
     }
 
-    const {_id, name, sku, inventory_type, category, is_active, prices, barcodes, size, weight
+    var {id, name, sku, inventory_type, category, is_active, barcodes, size, weight
 
     } = req.body as CreateProductProps;
 
-    if (!mongoose.Types.ObjectId.isValid(_id)) return res.status(400).json({message: "Invalid product id."});
+
+    const company = await Company.findOne({_id: user.company});
+    const conn = await ConnectMySQLCompanyDb(company);
 
     try {
-        const product = await Product.findOne({_id, company: user.company});
-        let changes = false;
+        conn.beginTransaction();
+        let sql = `SELECT *, category_id AS category FROM products WHERE id = ?`;
+        const [rows] = await conn.query<Array<any>>(sql, [id]);
+        if (rows.length < 1) return res.status(400).json({message: "Product does not exist"});
+        const product = rows[0] as ProductSingle;
 
-        if (!product) return res.status(400).json({message: "Invalid product id. Product not found."});
+        let changes = false;
+        let filelds = [];
+        let values = [];
+
         if (name && name != product.name) {
-            product.name = name;
+            filelds.push("name");
+            values.push(name);
             changes = true;
         };
+
         if (sku && sku != product.sku) {
             // sku must be unique
-            const count = await Product.countDocuments({sku, _id: {$nin: [product._id]}, company: user.company});
-
-            if (count > 0) return res.status(400).json({message: "SKU must be unique."});
-
-            product.sku = sku;
+            sql = `SELECT * FROM products WHERE sku = ? AND id != ?`;
+            const [rows] = await conn.query<Array<any>>(sql, [sku, id]);
+            if (rows.length > 0) return res.status(400).json({message: "SKU already exists"});
+            filelds.push("sku");
+            values.push(sku);
             changes = true;
         }
 
         if (inventory_type && product.inventory_type != inventory_type){
-            product.inventory_type = inventory_type;
+            filelds.push("inventory_type");
+            values.push(inventory_type);
             changes = true;
         }
 
-        if (is_active && is_active != product.is_active){
-            product.is_active = is_active;
+        if (typeof(is_active) !== "undefined" && is_active != product.is_active){
+            filelds.push("is_active");
+            if (is_active) values.push(1);
+            else values.push(0);
             changes = true;
         }
 
-        if (category && product.category != mongoose.Types.ObjectId.createFromHexString(category)){
-            const categoryExists = Product.findOne({company: user.company, _id: category});
-            if (!categoryExists) return res.status(400).json({message: "Category does not exist"});
+        if (category && product.category != category){
+            sql = `SELECT * FROM product_categories WHERE id = ?`;
+            const [rows] = await conn.query<Array<any>>(sql, [category]);
+            if (rows.length < 1) return res.status(400).json({message: "Category does not exist"});
 
-            product.category = mongoose.Types.ObjectId.createFromHexString(category);
+            filelds.push("category_id");
+            values.push(category);
             changes = true;
         }
-
+        /* process barcodes later
         const product_bcs = ((product.barcodes && product.barcodes.length > 0)?product.barcodes:[]) as Array<string>;
         if (barcodes && !compaire_array(barcodes, product_bcs)){
             product.barcodes = barcodes;
             changes = true;
-        }
+        }*/
 
-        if (size){
-            product.size = size;
+        if (size && product.size != size){
+            filelds.push("size");
+            values.push(size);
             changes = true;
         }
 
-        if (weight){
-            product.weight = weight;
+        if (weight && product.weight != weight){
+            filelds.push("weight");
+            values.push(weight);
             changes = true;
         }
 
         if (changes){
-            await product.save();
-            return res.status(200).json({message:"Product details updated."});
+            sql = `UPDATE products SET ${filelds.join(" = ?, ")} = ? WHERE id = ?`;
+            values.push(id);
+            await conn.query(sql, values);
+
         }
-        return res.status(200).json({message:"No changes have been made."});
+
+        // process barcodes
+        sql = `SELECT * FROM product_barcodes WHERE product_id = ?`;
+        const [bcs] = await conn.query<Array<any>>(sql, [id]);
+        let bcs_to_remove = [];
+        let bcs_to_add = [];
+        for (let i = 0; i < bcs.length; i++){
+            if (barcodes.indexOf(bcs[i].barcode) == -1) bcs_to_remove.push(bcs[i].id);
+        }
+        for (let i = 0; i < barcodes.length; i++){
+            if (bcs.map((bc:any) => bc.barcode).indexOf(barcodes[i]) == -1) bcs_to_add.push(barcodes[i]);
+        }
+
+        if (bcs_to_remove.length > 0){
+            sql = `DELETE FROM product_barcodes WHERE id IN (?)`;
+            await conn.query(sql, [bcs_to_remove]);
+        }
+
+        if (bcs_to_add.length > 0){
+            sql = `INSERT INTO product_barcodes (barcode, product_id) VALUES ?`;
+            let values = bcs_to_add.map((bc:string) => [bc, id]);
+            await conn.query(sql, [values]);
+        }
+
+        conn.commit();
+        return res.status(200).json({message:"Product details updated."});
         
     } catch (error) {
+        conn.rollback();
         let msg = {message: "Internal Server Error!"};
         if (process.env.DEBUG){
             msg['debug'] = error;

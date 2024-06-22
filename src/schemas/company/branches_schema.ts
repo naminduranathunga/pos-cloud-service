@@ -7,7 +7,7 @@ const BranchSchema = new Schema({
         required: true
     },
     name: {
-        type: String,
+        type: String, 
         required: true
     },
     address: {
@@ -23,6 +23,11 @@ const BranchSchema = new Schema({
         type: String,
         required: false,
         default: ""
+    },
+    metadata: {
+        type: Object,
+        required: false,
+        default: {}
     }
 })
 

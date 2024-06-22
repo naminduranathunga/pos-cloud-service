@@ -10,7 +10,8 @@
  *      - Edit a user in a company
  *      - Create new branch
  */
-import { register_api_endpoint, register_user_permissions } from "../../modules/app_manager";
+
+import { register_api_endpoint, register_event, register_user_permissions } from "../../modules/app_manager";
 import config from "./config";
 import create_new_company from "./endpoints/create-company";
 import create_new_company_user from "./endpoints/create-company-user";
@@ -21,6 +22,8 @@ import get_user_role_list from "./endpoints/grt-user-rolls";
 import get_user_list from "./endpoints/get-list-of-company-users";
 import edit_company_user from "./endpoints/edit-company-user";
 import create_new_branch from "./endpoints/branches/create-a-branch";
+import test_mysql_endpoint from "./endpoints/test_mysql";
+import create_company_database_on_creating_company from "./events/create_company_database";
 
 /** Init the module */
 export function init_module(){
@@ -30,7 +33,7 @@ export function init_module(){
     });
 
     // Register Event Handlers
-
+    event_listners();
 
     // Register API Endpoints
     endpoints();
@@ -110,4 +113,19 @@ function endpoints() {
         method: "POST",  
         handler: create_new_branch
     });
+
+    register_api_endpoint({
+        route: `/test-db`,
+        is_protected: false,
+        method: "GET",
+        handler: test_mysql_endpoint
+    });
 }
+
+function event_listners(){
+    register_event({
+        event_name:"sys_company_manager/after_creating_company",
+        handler: create_company_database_on_creating_company
+    });
+}
+
