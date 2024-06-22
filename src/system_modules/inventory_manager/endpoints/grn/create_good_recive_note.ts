@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { check_user_permission } from '../../../modules/app_manager';
+import { check_user_permission } from '../../../../modules/app_manager';
 import mongoose from 'mongoose';
-import Branch from '../../../schemas/company/branches_schema';
+import Branch from '../../../../schemas/company/branches_schema';
 
 interface GRNBody {
     branch_id: string;

@@ -23,6 +23,11 @@ const BranchSchema = new Schema({
         type: String,
         required: false,
         default: ""
+    },
+    metadata: {
+        type: Object,
+        required: false,
+        default: {}
     }
 })
 
