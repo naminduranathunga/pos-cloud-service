@@ -43,7 +43,13 @@ const CompanySchema = new Schema({
         username: String,
         password: String,
         host: String
+    },
+    isActive: {
+        type: Boolean,
+        required: false,
+        default: true
     }
+
 });
 
 const Company = mongoose.model('Company', CompanySchema);
