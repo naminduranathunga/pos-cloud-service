@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
-import ProductCategory from "../../../../schemas/product/product_category_schema";
+//import ProductCategory from "../../../../schemas/product/product_category_schema";
 import { AuthenticatedUser } from "../../../../interfaces/jwt_token_user";
 import { check_user_permission } from "../../../../modules/app_manager";
+import { ConnectMySQLCompanyDb } from "../../../../lib/connect_sql_server";
+import Company from "../../../../schemas/company/company_scema";
+import ProductCategory from "../../interfaces/product_category";
 
 
 /**
@@ -11,7 +14,7 @@ import { check_user_permission } from "../../../../modules/app_manager";
  * @param res 
  */
 export default async function create_product_category(req: Request, res: Response){
-    const { name, parent_id} = req.body as {name: string, parent_id?: string;};
+    const { name, parent_id} = req.body as {name: string, parent_id?: number;};
     const user = req.user;
 
     // get user's company
@@ -26,24 +29,30 @@ export default async function create_product_category(req: Request, res: Respons
 
     // validation 
     if (!name) return res.status(400).json({message: "Name is required"});
-    if (parent_id && parent_id.length > 0 && !parent_id.match(/^[0-9a-fA-F]{24}$/)) return res.status(400).json({message: "Invalid parent_id"});
+    if (parent_id && typeof(parent_id) !== "number") return res.status(400).json({message: "parent_id must be a number"});
+    if (parent_id && parent_id <= 0) return res.status(400).json({message: "Invalid parent_id"});
     
+    const company = await Company.findOne({_id: user.company});
+    const conn = await ConnectMySQLCompanyDb(company);
+
     // get parent category
     if (parent_id) {
-        const parent = ProductCategory.findOne({_id: parent_id, company: user.company});
-        if (!parent) return res.status(400).json({message: "Parent category not found"});
+        let sql = `SELECT * FROM categories WHERE id = ?;`;
+        let [rows] = await conn.query<Array<any>>(sql, [parent_id]);
+        if (rows.length === 0) return res.status(400).json({message: "Parent category not found"});
     }
-    // create product category
-    const newC = new ProductCategory({
-        name,
-        parent: (parent_id) ? parent_id : null,
-        company: user.company
-    });
-
-    newC.save().then((doc) => {
-        res.status(200).json(doc);
-    }).catch((err) => {
-        res.status(400).json(err);
-    });
     
+
+    let sql = `INSERT INTO categories (name, parent_id) VALUES (?, ?);`;
+    let [row] = await conn.query(sql, [name, ((parent_id) ? parent_id : null)]);
+    // get the id
+    sql = `SELECT LAST_INSERT_ID() as id;`;
+    [row] = await conn.query(sql);
+    const id = row[0].id;
+    const newCat:ProductCategory = {
+        id,
+        name,
+        parent_id: (parent_id) ? parent_id : null
+    };
+    res.status(200).json(newCat);
 }

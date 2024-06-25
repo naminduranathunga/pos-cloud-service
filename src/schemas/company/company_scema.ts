@@ -34,11 +34,22 @@ const CompanySchema = new Schema({
         required: false,
         default: []
     },
+    company_data:{
+        type: Map<String, String>,
+        required: false,
+    },
+    company_database: {
+        name: String,
+        username: String,
+        password: String,
+        host: String
+    },
     isActive: {
         type: Boolean,
         required: false,
         default: true
     }
+
 });
 
 const Company = mongoose.model('Company', CompanySchema);

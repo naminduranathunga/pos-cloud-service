@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
-import { AuthenticatedUser } from "../../../../interfaces/jwt_token_user";
 import { check_user_permission } from "../../../../modules/app_manager";
 import Product from "../../../../schemas/product/product_schema";
 import multer from "multer";
 import sharp from "sharp";
+import Company from "../../../../schemas/company/company_scema";
+import { ConnectMySQLCompanyDb } from "../../../../lib/connect_sql_server";
 
 /**
  * Unlike  normal requests, this uses multer for parsing the body
@@ -29,13 +30,15 @@ export default async function add_thumbnail_for_product(req: Request, res: Respo
         return;
     }
 
-    const {product_id} = req.body as {product_id: string};
+    var {product_id} = req.body as {product_id: any};
     const thumbnail = req.file;
 
-
+    
     // validate request
     if (!product_id) return res.status(400).json({message: "Product ID is required"});
     if (!thumbnail) return res.status(400).json({message: "Thumbnail is required"});
+    product_id = parseInt(product_id);
+    if (product_id < 1) return res.status(400).json({message: "Product ID is invalid"});
     /*
     {
   fieldname: 'thumbnail',
@@ -46,9 +49,14 @@ export default async function add_thumbnail_for_product(req: Request, res: Respo
   size: 17355
 }*/
     // convert image to webp and save it
+    
+    const company = await Company.findOne({_id: user.company});
+    const conn = await ConnectMySQLCompanyDb(company);
 
-    const product = await Product.findOne({company: user.company, _id: product_id});
-    if (!product) return res.status(400).json({message: "Product does not exist"});
+    // check if the product exists
+    let sql = `SELECT * FROM products WHERE id = ?`;
+    const [rows] = await conn.query<Array<any>>(sql, [product_id]);
+    if (rows.length < 1) return res.status(400).json({message: "Product does not exist"});
 
     // save the thumbnail
     // <product_id><timestamp>.webp
@@ -57,8 +65,8 @@ export default async function add_thumbnail_for_product(req: Request, res: Respo
     const full_path = `${upload_path}/${thumbnail_file_name}`;
     sharp(thumbnail.buffer).toFile(full_path);
     
-    product.thumbnail = thumbnail_file_name;
-    await product.save();
+    sql = `UPDATE products SET thumbnail = ? WHERE id = ?`;
+    await conn.query(sql, [thumbnail_file_name, product_id]);
 
     return res.status(200).json({message: "Thumbnail added successfully", thumbnail: thumbnail_file_name});
 }

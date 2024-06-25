@@ -14,7 +14,8 @@
  *      - update a branch
  *      - Get list of branches
  */
-import { register_api_endpoint, register_user_permissions } from "../../modules/app_manager";
+
+import { register_api_endpoint, register_event, register_user_permissions } from "../../modules/app_manager";
 import config from "./config";
 import create_new_company from "./endpoints/create-company";
 import create_new_company_user from "./endpoints/create-company-user";
@@ -25,10 +26,15 @@ import get_user_role_list from "./endpoints/grt-user-rolls";
 import get_user_list from "./endpoints/get-list-of-company-users";
 import edit_company_user from "./endpoints/edit-company-user";
 import create_new_branch from "./endpoints/branches/create-a-branch";
+<<<<<<< HEAD
 import delete_branch from "./endpoints/branches/delete-a-branch";
 import update_branch from "./endpoints/branches/edit-a-branch";
 import delete_company_user from "./endpoints/delete-company-user";
 import get_branch_list from "./endpoints/branches/get-list-of-branches";
+=======
+import test_mysql_endpoint from "./endpoints/test_mysql";
+import create_company_database_on_creating_company from "./events/create_company_database";
+>>>>>>> 631039697180b15a35e62cecb5eaef8809f5bcb8
 
 /** Init the module */
 export function init_module(){
@@ -38,7 +44,7 @@ export function init_module(){
     });
 
     // Register Event Handlers
-
+    event_listners();
 
     // Register API Endpoints
     endpoints();
@@ -127,6 +133,7 @@ function endpoints() {
     });
 
     register_api_endpoint({
+<<<<<<< HEAD
         route: `${route_prefix}${company_prefix}/delete-branch`,
         is_protected: true,
         method: "POST",  
@@ -147,3 +154,19 @@ function endpoints() {
         handler: get_branch_list
     });
 }
+=======
+        route: `/test-db`,
+        is_protected: false,
+        method: "GET",
+        handler: test_mysql_endpoint
+    });
+}
+
+function event_listners(){
+    register_event({
+        event_name:"sys_company_manager/after_creating_company",
+        handler: create_company_database_on_creating_company
+    });
+}
+
+>>>>>>> 631039697180b15a35e62cecb5eaef8809f5bcb8

@@ -1,7 +1,7 @@
 
 import { Request, Response } from "express";
 import Company from "../../../schemas/company/company_scema";
-import { check_user_permission } from "../../../modules/app_manager";
+import { check_user_permission, raise_event } from "../../../modules/app_manager";
 
 interface ComapanyDetailsBody {
     name: string;
@@ -52,7 +52,18 @@ export default async function create_new_company(req: Request, res: Response){
         phone: company.phone
     });
 
+    raise_event("sys_company_manager/before_creating_company", {
+        company:new_company,
+        res,
+        req
+    });
+
     new_company.save().then((doc)=>{
+        raise_event("sys_company_manager/after_creating_company", {
+            company:doc,
+            res,
+            req
+        });
         res.status(200).json(doc)
     }).catch((error)=>{
         res.status(500).json({

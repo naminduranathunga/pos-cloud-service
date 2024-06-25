@@ -25,6 +25,7 @@ import delete_company_user from "./endpoints/remove_company_user";
 import delete_company_user_role from "./endpoints/remove_user_role";
 import update_company_user from "./endpoints/update_company_user";
 import update_user_role from "./endpoints/update_user_role";
+import validate_user_token from "./endpoints/validate_user_token";
 
 /** Init the module */
 export function init_module(){
@@ -33,11 +34,12 @@ export function init_module(){
         register_user_permissions(permission.name, permission.description, config.name);
     });
 
-    // Register Event Handlers
-    /*register_event({
-        event_name: 'safe_delete_product_categories',
-        handler: safe_delete_product_categories,
-    })*/
+    register_api_endpoint({
+        method: 'GET',
+        route: '/user-manager/is_token_valid',
+        is_protected: true,
+        handler: validate_user_token,
+    });
 
 
     // Register API Endpoints

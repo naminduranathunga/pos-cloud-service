@@ -8,6 +8,10 @@ import express from 'express';
 import { AppApiEndpoint, AppEvent, AppSingleModule, UserPermissionType } from '../interfaces/app_manager_interfaces';
 import { AuthenticatedUser } from '../interfaces/jwt_token_user';
 import { error_handler_wrapper } from './error_handler_wrapper';
+import * as path from 'path';
+import * as fs from 'fs';
+//const path = require('path');
+//const fs = require('fs');
 
 var event_handlers = new Map<string, AppEvent[]>();
 var api_endpoints = new Map<string, AppApiEndpoint>();
@@ -55,32 +59,64 @@ export function raise_event(event_name:string, data:any){
     return data;
 }
 
+function scan_module_folder(){
+    // get 
+    console.log('Directory name:', __dirname);
+    const system_modules_path = require('path').resolve(__dirname, '../system_modules');
+    const folder_list = fs.readdirSync(system_modules_path);
+    var module_list = [];
+
+    folder_list.forEach((folder_name:string) => {
+        let module_current:AppSingleModule = {
+            module_name: folder_name,
+            start_point: folder_name + "/main.js",
+            module_path: system_modules_path + "/" + folder_name
+        };
+        module_list.push(module_current);
+    });
+    return module_list;
+}
+
+// inactive modules --
+/**
+ * 
+ * modules defined in the inactive_modules.json file will be skipped.
+ */
+function get_inactive_modules(){
+    const inactive_modules = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../data/config/inactive_modules.json"), 'utf8'));
+    return inactive_modules as string[];
+}
 
 // process of loading modules
 export function load_modules(){
     // load modules.json
-    const path = require('path');
-    const fs = require('fs');
-    const modules = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../data/system_modules.json")
-        , 'utf8'));
+    
+    scan_module_folder();
+    //const modules = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../data/system_modules.json"), 'utf8'));
     console.log("Loading modules...");
+    const modules = scan_module_folder();
+    const inactive_modules = get_inactive_modules();
+
     modules.forEach((module_single:AppSingleModule) => {
         try {
+            if (inactive_modules.includes(module_single.module_name)){
+                modue_list.push(module_single); // still add to the module list
+                console.log("\t> Module " + module_single.module_name + ".....[\x1b[33mskipped\x1b[0m]");
+                return;
+            }
             const module = require(`../system_modules/${module_single.start_point}`);
             if (typeof(module.init_module) === "function"){
                 module.init_module();
             } else {
-                console.log("Module " + module_single.module_name + " \x1b[31m \"init_module\" function not defined.\x1b[0m");
+                console.log("\t> Module " + module_single.module_name + " \x1b[31m \"init_module\" function not defined.\x1b[0m");
                 return;
             }
             modue_list.push(module_single);
-            console.log("Module " + module_single.module_name + " \x1b[32mloaded.\x1b[0m");
+            console.log("\t> Module " + module_single.module_name + ".....[\x1b[32mloaded\x1b[0m]");
         } catch (error) {
-            console.log("Module " + module_single.module_name + " \x1b[31merror.\x1b[0m");
+            console.log("\t> Module " + module_single.module_name + ".....[\x1b[31merror\x1b[0m]");
             console.log(error);
         }
-        
-        
     });
 } 
 
