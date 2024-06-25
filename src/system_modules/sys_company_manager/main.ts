@@ -8,7 +8,11 @@
  *      - Get user roles
  *      - Get list of users in a company
  *      - Edit a user in a company
+ *      - Delete a user in a company
  *      - Create new branch
+ *      - delete a branch
+ *      - update a branch
+ *      - Get list of branches
  */
 import { register_api_endpoint, register_user_permissions } from "../../modules/app_manager";
 import config from "./config";
@@ -21,6 +25,10 @@ import get_user_role_list from "./endpoints/grt-user-rolls";
 import get_user_list from "./endpoints/get-list-of-company-users";
 import edit_company_user from "./endpoints/edit-company-user";
 import create_new_branch from "./endpoints/branches/create-a-branch";
+import delete_branch from "./endpoints/branches/delete-a-branch";
+import update_branch from "./endpoints/branches/edit-a-branch";
+import delete_company_user from "./endpoints/delete-company-user";
+import get_branch_list from "./endpoints/branches/get-list-of-branches";
 
 /** Init the module */
 export function init_module(){
@@ -105,9 +113,37 @@ function endpoints() {
     });
 
     register_api_endpoint({
+        route: `${route_prefix}${company_prefix}/delete-user`,
+        is_protected: true,
+        method: "POST",  
+        handler: delete_company_user
+    });
+
+    register_api_endpoint({
         route: `${route_prefix}${company_prefix}/add-branch`,
         is_protected: true,
         method: "POST",  
         handler: create_new_branch
+    });
+
+    register_api_endpoint({
+        route: `${route_prefix}${company_prefix}/delete-branch`,
+        is_protected: true,
+        method: "POST",  
+        handler: delete_branch
+    });
+
+    register_api_endpoint({
+        route: `${route_prefix}${company_prefix}/update-branch`,
+        is_protected: true,
+        method: "POST",  
+        handler: update_branch
+    });
+
+    register_api_endpoint({
+        route: `${route_prefix}${company_prefix}/get-branches`,
+        is_protected: true,
+        method: "POST",  
+        handler: get_branch_list
     });
 }
