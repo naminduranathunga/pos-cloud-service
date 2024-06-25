@@ -7,7 +7,7 @@ interface BranchDetailsBody {
     company: string;
     name: string;
     address: string;
-    phone?: string[];
+    phone?: string | string[];
     email?: string;
     user: any;
 }
@@ -52,12 +52,22 @@ export default async function create_new_branch(req: Request, res: Response) {
         return;
     }
 
+    // Handle phone numbers
+    let phoneArray: string[] = [];
+    if (branch.phone) {
+        if (typeof branch.phone === 'string') {
+            phoneArray = branch.phone.split(',').map(phone => phone.trim());
+        } else if (Array.isArray(branch.phone)) {
+            phoneArray = branch.phone;
+        }
+    }
+
     // create new branch
     const new_branch = new Branch({
         company: branch.company,
         name: branch.name,
         address: branch.address || "",
-        phone: branch.phone || [],
+        phone: phoneArray,
         email: branch.email || ""
     });
 
