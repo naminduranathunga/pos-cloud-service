@@ -1,0 +1,12 @@
+{
+        "_id": "663e13aef634115934874afc",
+        "first_name": "demo_a",
+        "last_name": "user2",
+        "email": "admin_user@demo.com",
+        "role": "663dcbe538f77f6a233b20a7",
+        "company": "663e114cafdb30b539d2412a"
+}
+
+unicorns_are_awesome
+
+{ "expiresIn": "400h" }

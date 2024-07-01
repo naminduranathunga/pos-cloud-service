@@ -8,6 +8,7 @@ const ConnectMySQL = async (with_db=true, multipleStatements=false) =>{
     const port = parseInt(process.env.MYSQL_PORT) || 3306;
     const host = process.env.MYSQL_HOST || 'localhost';
 
+    console.log(`Connecting to MySQL: ${user}@${host}:${port}/${database}`);
     let connection:mysql.Connection;
     if (with_db){
         connection = await mysql.createConnection({

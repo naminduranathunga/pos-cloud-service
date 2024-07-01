@@ -11,3 +11,9 @@ npm install
 ```bash
 npm run dev
 ```
+
+## Compose Docker
+
+```bash
+docker-compose up
+```

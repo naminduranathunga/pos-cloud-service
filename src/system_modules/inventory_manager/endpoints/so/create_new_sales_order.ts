@@ -27,7 +27,8 @@ export interface GRNBody {
     }[];
 };
 
-export default async function create_good_recive_note(req: Request, res: Response) {
+export default async function create_sales_order(req: Request, res: Response) {
+    return res.status(200).json({});
     // authenticate user
     const user = req.user;
     //const { first_name, last_name, email, password, role_id } = req.body as ComapanyUserBody;
