@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express"
 
 export interface AppEvent {
     event_name: string,
+    rank?: number,
     handler: Function
 };
 

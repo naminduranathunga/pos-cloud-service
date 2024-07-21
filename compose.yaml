@@ -7,17 +7,31 @@ services:
       - "27017:27017"
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-      - ./data_db:/data/db
+      - ./data_db/mongodb:/data/db
 
     environment:
       MONGO_INITDB_DATABASE: test-pos
       MONGO_INITDB_ROOT_USERNAME: namindus8
       MONGO_INITDB_ROOT_PASSWORD: BMju1pd1fmOyJpAD
 
+  mysql:
+    image: mysql:8.4.0
+    container_name: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data_db/mysql:/var/lib/mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: Qc#24P1@5d
+      MYSQL_DATABASE: test_pos
+
+
   app:
     build: .
     container_name: app
-    restart: always
+    restart: no
     ports:
       - "12001:12001"
     
@@ -25,6 +39,7 @@ services:
       - .env.docker
     depends_on:
       - mongo
+      - mysql
 
     
   

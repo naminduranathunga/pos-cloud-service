@@ -10,6 +10,7 @@ import { AuthenticatedUser } from '../interfaces/jwt_token_user';
 import { error_handler_wrapper } from './error_handler_wrapper';
 import * as path from 'path';
 import * as fs from 'fs';
+import e from 'express';
 //const path = require('path');
 //const fs = require('fs');
 
@@ -26,13 +27,25 @@ var user_permission_list = Array<UserPermissionType>();
  */
 
 export function register_event(event:AppEvent){
+    event.rank = event.rank || 100;
     let handers:AppEvent[] = event_handlers.get(event.event_name);
     if(!handers){
         handers = [];
     }
-
     handers.push(event);
     event_handlers.set(event.event_name, handers);
+}
+
+/**
+ * Organize events by rank
+ * 
+ */
+export function organize_events(){
+    event_handlers.forEach((handlers:AppEvent[], event_name:string) => {
+        handlers.sort((a:AppEvent, b:AppEvent) => {
+            return a.rank - b.rank;
+        });
+    });
 }
 
 /**
@@ -49,11 +62,11 @@ export function register_api_endpoint(endpoint:AppApiEndpoint){
 /**
  * Raise an event
  */
-export function raise_event(event_name:string, data:any){
+export function raise_event(event_name:string, data:any, req?:express.Request, res?:express.Response){
     let handers:AppEvent[] = event_handlers.get(event_name);
     if(handers){
         handers.forEach((event:AppEvent) => {
-            data = event.handler(data);
+            data = event.handler(data, req, res);
         });
     }
     return data;

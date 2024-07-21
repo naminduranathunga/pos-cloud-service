@@ -15,13 +15,14 @@ config();
 import express from 'express';
 import UserLogin from './user_login';
 import { auth } from './middleware/auth';
-import { add_api_endpoints, load_modules } from './modules/app_manager';
+import { add_api_endpoints, load_modules, organize_events } from './modules/app_manager';
 import bodyParser from 'body-parser';
 import { db_connect } from './middleware/db_connect';
 import cors, { CorsOptions } from 'cors';
 import multer from 'multer';
 import errorHandler from './middleware/error_handler';
 import ConnectMongoDB from './lib/connect_mongodb';
+import system_check from './lib/system_check';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -49,6 +50,10 @@ app.use(db_connect);
 // initilize event handler here
 //--------------------------------------------
 load_modules();
+organize_events();
+
+
+
 
 
 app.get('/', (req, res) => {
@@ -92,6 +97,8 @@ app.use('/api/v1', protected_router);
 app.use(errorHandler);
 
 
-app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}`);
+system_check().then(() => {
+  app.listen(port, () => {
+    return console.log(`Express is listening at http://localhost:${port}`);
+  });
 });
