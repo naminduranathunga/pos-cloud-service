@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Branch from '../../../../schemas/company/branches_schema';
-import mongoose from 'mongoose';
 import { ConnectMySQLCompanyDb } from '../../../../lib/connect_sql_server';
 import Company from '../../../../schemas/company/company_scema';
 import { check_user_permission } from '../../../../modules/app_manager';
