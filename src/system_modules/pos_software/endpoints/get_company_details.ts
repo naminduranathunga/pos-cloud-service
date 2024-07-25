@@ -13,7 +13,10 @@ interface CompanyDetailsParams {
  * @param res 
  */
 export default async function get_company_detail(req: Request, res: Response) {
-    const params = req.body as CompanyDetailsParams;
+    /**
+     * Node for Janani- Request body is not available for GET requests. Use req.query with parameters or move to POST requests
+     */
+    const params = req.query as unknown as CompanyDetailsParams;
     const user = req.user;
 
     // Permission validation (no need to check for super-admin, assuming check_user_permission handles JWT)

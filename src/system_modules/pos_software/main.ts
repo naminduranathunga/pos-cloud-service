@@ -10,7 +10,7 @@ export function init_module(){
     });
 
     register_api_endpoint({
-        route: 'pos-software/get-company',
+        route: '/pos-software/get-company',
         is_protected: true,
         method: "GET",
         handler: get_company_detail
