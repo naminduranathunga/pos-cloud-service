@@ -1,0 +1,35 @@
+APP_TEST=khjkl
+DEBUG=true
+PORT=12001
+
+
+# Database
+MONGODB_DB_NAME=test-pos
+MONGODB_USER=namindus8
+MONGODB_PASSWORD=BMju1pd1fmOyJpAD
+MONGODB_HOST=cluster0.wz2sri9.mongodb.net
+MONGODB_PROTOCOL=mongodb+srv
+MONGODB_URL_PARAMETERS="?authSource=admin"
+
+# MYSQL DB
+MYSQL_DB_NAME=test_pos
+MYSQL_USER=root
+MYSQL_PASSWORD=
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+
+JWT_SECRET=unicorns_are_awesome
+
+# MULTER
+MAX_FILE_SIZE=5242880 # 5MB
+UPLOADS_DIR=uploads
+
+# Product Image Path
+PRODUCT_THUMBNAIL_PATH=uploads/products
+PRODUTCT_THUMBNAIL_MAX_SIZE=512 # in KB
+PRODUCT_THUMBNAIL_TYPE=jpeg,jpg,png,webp
+
+
+
+# Encryption of Passwords
+PASSWORD_SYMMETRIC_KEY=1de53254b593389b958158f870d0bcf98a3bb53bef66e279473f751a247db679

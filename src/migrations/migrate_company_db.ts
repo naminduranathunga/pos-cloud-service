@@ -10,6 +10,8 @@ import path from 'path';
 function get_migration_files(){
     const dir = path.join(__dirname, 'company_db');
     const files = fs.readdirSync(dir);
+    files.sort();
+    console.log(files);
     return files.filter(file => file.endsWith('.js'));
 }
 

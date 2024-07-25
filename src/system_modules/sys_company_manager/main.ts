@@ -30,7 +30,9 @@ import delete_branch from "./endpoints/branches/delete-a-branch";
 import update_branch from "./endpoints/branches/edit-a-branch";
 import delete_company_user from "./endpoints/delete-company-user";
 import get_branch_list from "./endpoints/branches/get-list-of-branches";
+import test_mysql_endpoint from "./endpoints/test_mysql";
 import create_company_database_on_creating_company from "./events/create_company_database";
+
 
 /** Init the module */
 export function init_module(){
@@ -149,7 +151,6 @@ function endpoints() {
         handler: get_branch_list
     });
 }
-  
 function event_listners(){
     register_event({
         event_name:"sys_company_manager/after_creating_company",
