@@ -14,7 +14,7 @@ interface CompanyDetailsParams {
  */
 export default async function get_company_detail(req: Request, res: Response) {
     /**
-     * Node for Janani- Request body is not available for GET requests. Use req.query with parameters or move to POST requests
+     * Note for Janani- Request body is not available for GET requests. Use req.query with parameters or move to POST requests
      */
     const params = req.query as unknown as CompanyDetailsParams;
     const user = req.user;
@@ -35,7 +35,7 @@ export default async function get_company_detail(req: Request, res: Response) {
     }
 
     try {
-        const company = await Company.findById(params.id);
+        const company = await Company.findById(params.id).select('name brn email phone address branches');
         if (!company) {
             res.status(404).json({
                 "message": "Company not found"
