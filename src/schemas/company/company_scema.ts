@@ -48,6 +48,10 @@ const CompanySchema = new Schema({
         type: Boolean,
         required: false,
         default: true
+    },
+    subscription: {
+        type: Schema.Types.Mixed,
+        required: false,
     }
 
 });

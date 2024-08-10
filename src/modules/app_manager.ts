@@ -137,34 +137,83 @@ export function load_modules(){
 
 
 // add api endpoints to express app
-export function add_api_endpoints(guest_router:express.Router, protected_router:express.Router){
+export function add_api_endpoints(guest_router:express.Router, protected_router:express.Router, unp_guest_router:express.Router, unp_protected_router:express.Router){
     api_endpoints.forEach((endpoint:AppApiEndpoint) => {
         if (endpoint.is_protected === true){
-            if (endpoint.method && endpoint.method === "POST"){
-                if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    protected_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
-                } else{
-                    protected_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+            if (endpoint.unparsed !== true){
+                if (typeof(endpoint.handler) === "function"){
+                    if (endpoint.method && endpoint.method === "POST"){
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            protected_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        } else{
+                            protected_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    } else {
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            protected_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        } else {
+                            protected_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    }
+                } else {
+                    protected_router.use(endpoint.route, endpoint.handler);
                 }
             } else {
-                if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    protected_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                if (typeof(endpoint.handler) === "function"){
+                    if (endpoint.method && endpoint.method === "POST"){
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            unp_protected_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        } else{
+                            unp_protected_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    } else {
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            unp_protected_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        } else {
+                            unp_protected_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    }
                 } else {
-                    protected_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                    unp_protected_router.use(endpoint.route, endpoint.handler);
                 }
             }
         } else {
-            if (endpoint.method && endpoint.method === "POST"){
-                if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    guest_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
-                }else {
-                    guest_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+            if (endpoint.unparsed === true){
+                if (endpoint.is_express_router !== true){
+                    if (endpoint.method && endpoint.method === "POST"){
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            guest_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        }else {
+                            guest_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    } else {
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            guest_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        } else {
+                            guest_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    }
+                } else {
+                    guest_router.use(endpoint.route, endpoint.handler);
                 }
             } else {
-                if (endpoint.middlewares && endpoint.middlewares.length > 0){
-                    guest_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                if (endpoint.is_express_router !== true){ 
+                    if (endpoint.method && endpoint.method === "POST"){
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            unp_guest_router.post(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        }else {
+                            unp_guest_router.post(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    } else {
+                        if (endpoint.middlewares && endpoint.middlewares.length > 0){
+                            unp_guest_router.get(endpoint.route, endpoint.middlewares, error_handler_wrapper(endpoint.handler));
+                        } else {
+                            unp_guest_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                        }
+                    }
                 } else {
-                    guest_router.get(endpoint.route, error_handler_wrapper(endpoint.handler));
+                    unp_guest_router.use(endpoint.route, endpoint.handler);
+                    console.log("Route: ", endpoint.route);
                 }
             }
         }

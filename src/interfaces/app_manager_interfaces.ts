@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express"
+import { NextFunction, Request, Response, Router } from "express"
 
 
 export interface AppEvent {
@@ -11,8 +11,10 @@ export interface AppApiEndpoint {
     route: string,
     is_protected: boolean,
     method?: string, 
-    handler: (req: Request, res: Response) => void,
-    middlewares?: any[]
+    handler: ((req: Request, res: Response) => void) | Router,
+    middlewares?: any[],
+    is_express_router?: boolean
+    unparsed?: boolean
 };
 
 export interface AppSingleModule {
