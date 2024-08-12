@@ -178,7 +178,7 @@ export function add_api_endpoints(guest_router:express.Router, protected_router:
                 }
             }
         } else {
-            if (endpoint.unparsed === true){
+            if (endpoint.unparsed !== true){
                 if (endpoint.is_express_router !== true){
                     if (endpoint.method && endpoint.method === "POST"){
                         if (endpoint.middlewares && endpoint.middlewares.length > 0){

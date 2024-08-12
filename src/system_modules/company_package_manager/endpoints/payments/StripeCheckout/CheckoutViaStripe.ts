@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import CustomerInvoice from "../../../../../schemas/company/customer_invoice_schema";
 import mongoose from "mongoose";
-const stripe = require('stripe')('sk_test_51PCmnvRwhVEyiTahrp5wMJGq6Ikbq1LaYgWjQWYE6SWkhEFHFdrGR2XIGnKNe369xOb5E0upzF4xj4MZFxp1ZQgN00SM1p7ZVE');
+import getStripe from "../../../functions/Checkout/GetStripe";
+import GetOrCreateStripeCustomer from "../../../functions/StripeAutopay/GetOrCreateStripCustomer";
+import Company from "../../../../../schemas/company/company_scema";
+//const stripe = require('stripe')('sk_test_51PCmnvRwhVEyiTahrp5wMJGq6Ikbq1LaYgWjQWYE6SWkhEFHFdrGR2XIGnKNe369xOb5E0upzF4xj4MZFxp1ZQgN00SM1p7ZVE');
 
 
 export default async function checkout_invoice_via_stripe(req: Request, res: Response){
@@ -29,6 +32,7 @@ export default async function checkout_invoice_via_stripe(req: Request, res: Res
     }
 
     // check if invoice has checkout session
+    const stripe = getStripe();
     if (invoice.customOptions && invoice.customOptions.checkoutSession) {
         // check if session is valid
         const session = await stripe.checkout.sessions.retrieve(invoice.customOptions.checkoutSession);
@@ -39,9 +43,12 @@ export default async function checkout_invoice_via_stripe(req: Request, res: Res
             });
         }
     }
+    const company = await Company.findOne({_id: invoice.company_id});
+    const customer = await GetOrCreateStripeCustomer(company);
 
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
+        customer: customer.id,       // Untested
         line_items: [
             {
                 price_data: {

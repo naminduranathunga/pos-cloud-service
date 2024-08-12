@@ -35,7 +35,8 @@ const CompanySchema = new Schema({
         default: []
     },
     company_data:{
-        type: Map<String, String>,
+        //type: Map<String, String>,
+        type: Schema.Types.Mixed,
         required: false,
     },
     company_database: {

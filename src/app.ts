@@ -79,7 +79,7 @@ app.get('/test', (req, res) => {
 const router = express.Router();
 const router_unparsed = express.Router();
 
-router_unparsed.use(bodyParser.raw({inflate: true, limit: '10mb', type: 'application/json'}));
+router_unparsed.use(express.raw({inflate: true, limit: '10mb', type: 'application/json'}));
 
 // login route
 //router.get('/login', UserLogin);
@@ -94,7 +94,7 @@ router.post('/login', UserLogin);
 const protected_router = express.Router();
 const protected_router_unparsed = express.Router();
 
-protected_router_unparsed.use(bodyParser.raw({inflate: true, limit: '10mb', type: 'application/json'}));
+protected_router_unparsed.use(express.raw({inflate: true, limit: '10mb', type: 'application/json'}));
 protected_router_unparsed.use(auth);
 
 protected_router.use(bodyParser.json());
@@ -103,8 +103,8 @@ protected_router.use(auth);
 
 add_api_endpoints(router, protected_router, router_unparsed, protected_router_unparsed);
 
-app.use('/api/v1', router_unparsed);
-app.use('/api/v1', protected_router_unparsed);
+app.use('/api/v1/unp', router_unparsed);
+app.use('/api/v1/unp', protected_router_unparsed);
 app.use('/api/v1', router);
 app.use('/api/v1', protected_router);
 

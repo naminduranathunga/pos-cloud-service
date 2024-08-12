@@ -13,7 +13,12 @@ import { api_add_subscription_to_company } from "./endpoints/admin/addCompanyPac
 import { cron_generate_invoices } from "./endpoints/admin/generateInvoices";
 import get_company_subscription_details from "./endpoints/admin/getSubscriptionDetails";
 import get_company_invoices from "./endpoints/getCompanyInvoices";
-import get_payment_checkout_form from "./endpoints/payments/CheckoutApi/getCheckoutForm";
+import cron_auto_pay_invoices from "./endpoints/payments/CronAutoPayInvoices";
+import company_get_automatic_payment_status from "./endpoints/payments/getAutomaticPaymentStatus";
+import company_trun_on_off_automatic_payment from "./endpoints/payments/onOffAutomaticPayment";
+import stripe_add_payment_method from "./endpoints/payments/StripeAutomaticCharge/AddStripePaymentMethod";
+import stripe_remove_payment_methods from "./endpoints/payments/StripeAutomaticCharge/RemoveAutoPaymentMethod";
+import stripe_retrive_payment_methods from "./endpoints/payments/StripeAutomaticCharge/RetriveStripePaymentMethods";
 import checkout_invoice_via_stripe from "./endpoints/payments/StripeCheckout/CheckoutViaStripe";
 import stripe_payment_event_webhook from "./endpoints/payments/StripeCheckout/StripePayentEvent";
 
@@ -33,13 +38,6 @@ export function init_module(){
 
 
 function endpoints() {
-    /*
-    register_api_endpoint({
-        route: '/hello-world',
-        is_protected: false,
-        handler: api_endpoint_hello_world
-    });
-    */
     const route_prefix = "/subscription-manager";
 
     register_api_endpoint({
@@ -75,17 +73,17 @@ function endpoints() {
         method: "GET",
         handler: cron_generate_invoices
     });
-
+    // crone auto pay initiate - uses stripe payment method
+    register_api_endpoint({
+        route: `${route_prefix}/cron/auto-pay-invoices`,
+        is_protected: false,
+        method: "GET",
+        handler: cron_auto_pay_invoices
+    });
 
     /**
      * Payment API + Webhooks
      */
-    register_api_endpoint({
-        route: `${route_prefix}/checkout/get-form-data`,
-        is_protected: true,
-        method: "GET",
-        handler: get_payment_checkout_form
-    });
 
     register_api_endpoint({
         route: `${route_prefix}/checkout/create-stripe-session`,
@@ -101,6 +99,37 @@ function endpoints() {
         is_express_router: true,
         unparsed: true,
         handler: stripe_payment_event_webhook
+    });
+    
+    register_api_endpoint({
+        route: `${route_prefix}/auto-checkout/add-stripe-payment-method`,
+        is_protected: true,
+        method: "GET",
+        handler: stripe_add_payment_method
+    });
+    register_api_endpoint({
+        route: `${route_prefix}/auto-checkout/get-stripe-payment-methods`,
+        is_protected: true,
+        method: "GET",
+        handler: stripe_retrive_payment_methods
+    });
+    register_api_endpoint({
+        route: `${route_prefix}/auto-checkout/remove-stripe-payment-method`,
+        is_protected: true,
+        method: "POST",
+        handler: stripe_remove_payment_methods
+    });
+    register_api_endpoint({
+        route: `${route_prefix}/auto-checkout/get-auto-payment-status`,
+        is_protected: true,
+        method: "GET",
+        handler: company_get_automatic_payment_status
+    });
+    register_api_endpoint({
+        route: `${route_prefix}/auto-checkout/set-auto-payment-status`,
+        is_protected: true,
+        method: "POST",
+        handler: company_trun_on_off_automatic_payment
     });
 }
 function event_listners(){

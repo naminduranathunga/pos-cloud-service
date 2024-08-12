@@ -31,7 +31,7 @@ export default async function GenerateInvoices(company: any){
         invoiceDate: new Date(),
         dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
         isPaid: false,
-        autoReccuringPayment: false,
+        autoReccuringPayment: (company.company_data?.automaticPayment === true), // set weather automatic payment ennable or not
         autoReccuringPaymentAttempts: 0,
         invoiceItems: [{
             name: subscription.packageName,

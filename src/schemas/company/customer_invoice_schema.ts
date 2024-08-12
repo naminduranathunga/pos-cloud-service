@@ -4,6 +4,7 @@ import mongoose, { Schema } from "mongoose";
 const CustomerInvoiceSchema = new Schema({
     company_id: {
         type: Schema.Types.ObjectId,
+        ref: "Company",
         required: true
     },
     totalAmount: {

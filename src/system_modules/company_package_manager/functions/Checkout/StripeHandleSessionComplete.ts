@@ -23,7 +23,7 @@ export default async function StripeHandleSessionComplete(session_id:string) {
         invoice.dueAmount = 0;
         invoice.paymentDate = new Date();
         invoice.paymentMethod = "Stripe";
-        invoice.paymentNotes = "Payment completed successfully";
+        invoice.paymentNotes = (invoice.paymentNotes||"") + "Payment completed successfully\n";
         invoice.paymentReference = session.payment_intent.toString();
 
         await invoice.save();
