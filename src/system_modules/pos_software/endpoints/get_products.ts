@@ -32,7 +32,6 @@ export default async function get_products(req: Request, res: Response) {
 
     var { page, per_page, search_term, barcode, status, id } = req.query as GetProductProps;
 
-
     // validate request
     if (!page) {
         page = 1;
@@ -53,7 +52,6 @@ export default async function get_products(req: Request, res: Response) {
         search_term = `%${search_term}%`;
     }
 
-    
     const company = await Company.findOne({_id: user.company});
     const conn = await ConnectMySQLCompanyDb(company);
 
@@ -62,14 +60,20 @@ export default async function get_products(req: Request, res: Response) {
      FROM product_barcodes 
      WHERE product_barcodes.product_id = products.id) AS barcodes`;
 
-    var sql = `SELECT products.*, ${barcode_select} FROM products`;
+    const price_select = `
+    (SELECT GROUP_CONCAT(sale_price SEPARATOR ', ') 
+     FROM product_stocks 
+     WHERE product_stocks.product_id = products.id) AS prices`;
+
+    var sql = `SELECT products.*, ${barcode_select}, ${price_select} FROM products`;
     var vars = [];
+
     if (search_term) {
         sql += ` WHERE name LIKE ? OR sku LIKE ?`;
         vars.push(search_term);
         vars.push(search_term);
     } else if (barcode) {
-        sql = `SELECT products.*, ${barcode_select} FROM products LEFT JOIN product_barcodes ON product_barcodes.product_id = products.id 
+        sql = `SELECT products.id, products.name, products.sku, products.thumbnail, products.inventory_type, products.is_active, ${barcode_select}, ${price_select} FROM products LEFT JOIN product_barcodes ON product_barcodes.product_id = products.id 
                 WHERE product_barcodes.barcode = ?`;
         vars.push(barcode);
     } else if (id){
@@ -78,7 +82,6 @@ export default async function get_products(req: Request, res: Response) {
     } else {
         sql += ` WHERE 1`;
     }
-
 
     if (status && status == "active"){
         sql += ` AND is_active = 1`;
@@ -93,22 +96,20 @@ export default async function get_products(req: Request, res: Response) {
 
     const [rows] = await conn.query<Array<any>>(sql, vars);
 
-    let products:ProductSingle[] = rows.map((row:any) => {
+    let products = rows.map((row:any) => {
         const barcodes = row.barcodes.split(", ");
+        const prices = row.prices ? row.prices.split(", ") : [];
         return {
-            id:row.id,
+            id: row.id,
             name: row.name,
             sku: row.sku,
             thumbnail: row.thumbnail,
             inventory_type: row.inventory_type,
-            category: row.category_id,
             is_active: row.is_active,
-            size: row.size,
-            weight: row.weight,
             barcodes: barcodes,
+            prices: prices,
         }
     });
 
     return res.json(products);
 }
-//0.0039s
