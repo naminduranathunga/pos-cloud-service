@@ -35,7 +35,8 @@ const CompanySchema = new Schema({
         default: []
     },
     company_data:{
-        type: Map<String, String>,
+        //type: Map<String, String>,
+        type: Schema.Types.Mixed,
         required: false,
     },
     company_database: {
@@ -48,6 +49,10 @@ const CompanySchema = new Schema({
         type: Boolean,
         required: false,
         default: true
+    },
+    subscription: {
+        type: Schema.Types.Mixed,
+        required: false,
     }
 
 });
