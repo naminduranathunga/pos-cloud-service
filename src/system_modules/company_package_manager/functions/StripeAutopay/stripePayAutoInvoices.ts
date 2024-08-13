@@ -18,7 +18,7 @@ export default async function stripePayAutoInvoices(invoices:any[]) {
                 throw new Error(`Automatic payment attempt failed. Attempt ${invoice.autoReccuringPaymentAttempts}`);
             }
 
-            //const paymentMethod
+            //const paymentMethod ccc
         } catch (error) {
             invoice.paymentNotes = (invoice.paymentNotes||"") + `${error.message}\n`;
         }
