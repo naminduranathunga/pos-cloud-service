@@ -23,11 +23,11 @@ export default async function cron_auto_pay_invoices(req: Request, res: Response
         ]
     });
 
-    invoices.forEach(async (invoice)=>{
+    /*invoices.forEach(async (invoice)=>{
         invoice.autoReccuringPaymentAttempts += 1;
         await invoice.save();
-    })
-    //await stripePayAutoInvoices(invoices);
+    })*/
+    await stripePayAutoInvoices(invoices);
 
     return res.json({
         message: "Cron job initiated",
