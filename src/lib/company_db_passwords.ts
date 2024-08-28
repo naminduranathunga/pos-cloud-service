@@ -25,12 +25,16 @@ export function encrypt_company_db_password(raw:string){
     if(!encryption_key){
         throw new Error("Encryption key not found");
     }
+    const encryption_key_b = Buffer.from(encryption_key, 'hex');
     // create cipher object
-const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-cbc', encryption_key, iv);
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-cbc', encryption_key_b, iv);
     let encrypted = cipher.update(raw, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    return encrypted;
+
+    // combine iv and encrypted data
+    return iv.toString('hex') + encrypted;
+    // return encrypted;
 }
 
 export function decrypt_company_db_password(encrypted:string){
@@ -39,11 +43,14 @@ export function decrypt_company_db_password(encrypted:string){
     if(!encryption_key){
         throw new Error("Encryption key not found");
     }
+    const encryption_key_b = Buffer.from(encryption_key, 'hex');
 
     // create decipher object
-    const iv = crypto.randomBytes(16);
-    const decipher = crypto.createDecipheriv('aes-256-cbc', encryption_key, iv);
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    const iv = Buffer.from(encrypted.slice(0, 32), 'hex');
+    const cipher = encrypted.slice(32);
+
+    const decipher = crypto.createDecipheriv('aes-256-cbc', encryption_key_b, iv);
+    let decrypted = decipher.update(cipher, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;
 }
