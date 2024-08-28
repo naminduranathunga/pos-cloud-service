@@ -52,6 +52,6 @@ export function decrypt_company_db_password(encrypted:string){
     const decipher = crypto.createDecipheriv('aes-256-cbc', encryption_key_b, iv);
     let decrypted = decipher.update(cipher, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
-    return decrypted;
+    return decrypted; 
 }
 
