@@ -23,6 +23,12 @@ import create_good_recive_note from "./endpoints/grn/create_good_recive_note";
 import get_grn_by_id from "./endpoints/grn/get_grn";
 import get_grn_list from "./endpoints/grn/get_grn_list";
 import get_next_grn_number from "./endpoints/grn/get_next_grn_number";
+import add_note_to_sales_note from "./endpoints/sales_notes/add_note_to_sales_note";
+import change_sn_status from "./endpoints/sales_notes/change_sn_status";
+import create_sales_note from "./endpoints/sales_notes/create_sales_note";
+import get_next_sn_number_req from "./endpoints/sales_notes/get_next_sn_number";
+import get_sales_note_by_id from "./endpoints/sales_notes/get_sales_note_by_id";
+import get_sales_note_list from "./endpoints/sales_notes/get_sales_note_list";
 import create_new_vendor from "./endpoints/vendors/create_new_vendor";
 import get_vendor_list from "./endpoints/vendors/get_vendors";
 import update_vendor from "./endpoints/vendors/update_new_vendor";
@@ -64,6 +70,45 @@ function register_endpoints(){
         method: 'GET',
         is_protected: true,
         handler: get_grn_by_id
+    });
+
+
+    // SN Endpoints 
+    register_api_endpoint({
+        route: '/inventory-manager/sn/get-next-sn-number',
+        method: 'GET',
+        is_protected: true,
+        handler: get_next_sn_number_req
+    });
+    register_api_endpoint({
+        route: '/inventory-manager/sn/create',
+        method: 'POST',
+        is_protected: true,
+        handler: create_sales_note
+    });
+    register_api_endpoint({
+        route: '/inventory-manager/sn/get',
+        method: 'GET',
+        is_protected: true,
+        handler: get_sales_note_list
+    });
+    register_api_endpoint({
+        route: '/inventory-manager/sn/get-one',
+        method: 'GET',
+        is_protected: true,
+        handler: get_sales_note_by_id
+    });
+    register_api_endpoint({
+        route: '/inventory-manager/sn/add-notes',
+        method: 'POST',
+        is_protected: true,
+        handler: add_note_to_sales_note
+    });
+    register_api_endpoint({
+        route: '/inventory-manager/sn/change-status',
+        method: 'POST',
+        is_protected: true,
+        handler: change_sn_status
     });
 
     // Customer Endpoints

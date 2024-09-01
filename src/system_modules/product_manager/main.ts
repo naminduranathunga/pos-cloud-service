@@ -19,8 +19,11 @@ import config from "./config";
 import create_product_category from "./endpoints/categories/create_product_category";
 import get_product_categories from "./endpoints/categories/get_product_categories";
 import remove_product_category from "./endpoints/categories/remove_product_category";
+import add_or_change_stock from "./endpoints/products/add_or_change_stock";
 import add_thumbnail_for_product, { add_thumbnail_upload_multer } from "./endpoints/products/add_thumbnail_for_product";
 import create_single_product from "./endpoints/products/create_product";
+import delete_product_stock from "./endpoints/products/delete_product_stock";
+import get_product_stock from "./endpoints/products/get_product_stock";
 import get_product_thumbnail from "./endpoints/products/get_product_thumbnail";
 import get_products from "./endpoints/products/get_products";
 import remove_thumbnail_from_product from "./endpoints/products/remove_thumbnail_from_product";
@@ -109,4 +112,25 @@ export function init_module(){
         is_protected: true,
         handler: remove_thumbnail_from_product,
     });
+
+    
+    register_api_endpoint({
+        method: 'GET',
+        route: '/product-manager/products/get-stocks',
+        is_protected: true,
+        handler: get_product_stock,
+    });
+    register_api_endpoint({
+        method: 'POST',
+        route: '/product-manager/products/add-stocks',
+        is_protected: true,
+        handler: add_or_change_stock,
+    });
+    register_api_endpoint({
+        method: 'POST',
+        route: '/product-manager/products/remove-stocks',
+        is_protected: true,
+        handler: delete_product_stock,
+    });
+
 }
