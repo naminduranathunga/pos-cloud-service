@@ -29,6 +29,7 @@ export async function cron_generate_invoices(req:Request, res: Response){
     }
 
     return res.status(200).json({
-        message: "Invoices generated successfully"
+        message: "Invoices generated successfully",
+        count: companies.length
     });
 }

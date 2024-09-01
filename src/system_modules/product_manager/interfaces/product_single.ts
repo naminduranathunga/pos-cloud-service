@@ -20,3 +20,12 @@ export default interface ProductSingle{
     barcodes?: Array<string>;
     prices?: Array<number>;
 }
+
+export interface ProductInventoryInterface {
+    id: number,
+    branch_id?: string,
+    product_id: number,
+    sales_price: number,
+    cost_price: number,
+    quantity: number,
+}

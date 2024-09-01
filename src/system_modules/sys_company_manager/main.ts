@@ -32,6 +32,9 @@ import delete_company_user from "./endpoints/delete-company-user";
 import get_branch_list from "./endpoints/branches/get-list-of-branches";
 import test_mysql_endpoint from "./endpoints/test_mysql";
 import create_company_database_on_creating_company from "./events/create_company_database";
+import migrate_company_dbs from "./endpoints/administration/migrate_company_dbs";
+import rollback_comp_db_migrations from "./endpoints/administration/rollback_comp_db_migrations";
+import reset_company_db_password from "./endpoints/administration/reset_company_db_password";
 
 
 /** Init the module */
@@ -149,6 +152,30 @@ function endpoints() {
         is_protected: true,
         method: "POST",  
         handler: get_branch_list
+    });
+
+
+
+    // Administration
+    // Used for dev purposes and upgrading company databases
+    //api/v1/sys-company-manager/company-administration/migrate-company-dbs
+    register_api_endpoint({
+        route: `${route_prefix}/company-administration/migrate-company-dbs`,
+        is_protected: true,
+        method: "POST",
+        handler: migrate_company_dbs
+    });
+    register_api_endpoint({
+        route: `${route_prefix}/company-administration/rollback-company-dbs`,
+        is_protected: true,
+        method: "POST",
+        handler: rollback_comp_db_migrations
+    });
+    register_api_endpoint({
+        route: `${route_prefix}/company-administration/reset-company-db-passwords`,
+        is_protected: true,
+        method: "POST",
+        handler: reset_company_db_password
     });
 }
 function event_listners(){

@@ -57,44 +57,60 @@ export default async function get_products(req: Request, res: Response) {
     const company = await Company.findOne({_id: user.company});
     const conn = await ConnectMySQLCompanyDb(company);
 
-    const barcode_select = `
+    /*const barcode_select = `
     (SELECT GROUP_CONCAT(barcode SEPARATOR ', ') 
      FROM product_barcodes 
-     WHERE product_barcodes.product_id = products.id) AS barcodes`;
+     WHERE product_barcodes.product_id = products.id) AS barcodes`;*/
 
-    var sql = `SELECT products.*, ${barcode_select} FROM products`;
+    //var sql = `SELECT products.*, ${barcode_select} FROM products`;
+    
     var vars = [];
+    let where_condition = "";
     if (search_term) {
-        sql += ` WHERE name LIKE ? OR sku LIKE ?`;
+        where_condition += ` WHERE products.name LIKE ? OR products.sku LIKE ?`;
         vars.push(search_term);
         vars.push(search_term);
     } else if (barcode) {
-        sql = `SELECT products.*, ${barcode_select} FROM products LEFT JOIN product_barcodes ON product_barcodes.product_id = products.id 
-                WHERE product_barcodes.barcode = ?`;
+        where_condition = ` WHERE product_barcodes.barcode = ?`;
         vars.push(barcode);
     } else if (id){
-        sql += ` WHERE id = ?`;
+        where_condition += ` WHERE products.id = ?`;
         vars.push(id);
     } else {
-        sql += ` WHERE 1`;
+        where_condition = " WHERE 1";
     }
 
 
     if (status && status == "active"){
-        sql += ` AND is_active = 1`;
+        where_condition += ` AND products.is_active = 1`;
     } else if (status && status == "inactive"){
-        sql += ` AND is_active = 0`;
+        where_condition += ` AND products.is_active = 0`;
     }
 
+    
     let offset = (page - 1) * per_page;
-    sql += ` LIMIT ?, ?`;
+     let limit_conds = ` LIMIT ?, ?`;
     vars.push(offset);
     vars.push(per_page);
+
+    var sql = `SELECT 
+                products.*,
+                MAX(product_stocks.sale_price) as max_price,
+                MIN(product_stocks.sale_price) as min_price,
+                GROUP_CONCAT(DISTINCT(product_stocks.sale_price) SEPARATOR ', ') AS prices,
+                GROUP_CONCAT(DISTINCT(product_barcodes.barcode) SEPARATOR ', ') AS barcodes
+            FROM products
+            LEFT JOIN product_stocks ON product_stocks.product_id = products.id
+            LEFT JOIN product_barcodes ON product_barcodes.product_id = products.id
+            ${where_condition}
+            GROUP BY products.id
+            ${limit_conds}`;
 
     const [rows] = await conn.query<Array<any>>(sql, vars);
 
     let products:ProductSingle[] = rows.map((row:any) => {
-        const barcodes = row.barcodes.split(", ");
+        const barcodes = row.barcodes?row.barcodes.split(", "):[];
+        const prices = row.prices?row.prices.split(", "):[];
         return {
             id:row.id,
             name: row.name,
@@ -106,6 +122,7 @@ export default async function get_products(req: Request, res: Response) {
             size: row.size,
             weight: row.weight,
             barcodes: barcodes,
+            prices: prices
         }
     });
 

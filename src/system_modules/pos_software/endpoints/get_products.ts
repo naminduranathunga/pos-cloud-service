@@ -97,7 +97,7 @@ export default async function get_products(req: Request, res: Response) {
     const [rows] = await conn.query<Array<any>>(sql, vars);
 
     let products = rows.map((row:any) => {
-        const barcodes = row.barcodes.split(", ");
+        const barcodes = row.barcodes?row.barcodes.split(", "):[];
         const prices = row.prices ? row.prices.split(", ") : [];
         return {
             id: row.id,

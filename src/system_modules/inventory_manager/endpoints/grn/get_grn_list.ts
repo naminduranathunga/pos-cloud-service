@@ -42,11 +42,11 @@ export default async function get_grn_list(req: Request, res: Response) {
         per_page = 10;
     }
 
-    let sql = `SELECT * FROM grn WHERE branch_id = ? ORDER BY grn_date DESC`;
+    let sql = `SELECT grn.*, vendors.name AS vendor_name FROM grn LEFT JOIN vendors ON vendors.id = grn.vendor_id WHERE branch_id = ? ORDER BY grn_date DESC, grn.id DESC`;
     let rows: Array<any> = [];
     if (id && typeof id === 'string'){
         id = parseInt(id);
-        sql = `SELECT * FROM grn WHERE branch_id = ? AND id = ?`;
+        sql = `SELECT grn.*, vendors.name AS vendor_name FROM grn LEFT JOIN vendors ON vendors.id = grn.vendor_id WHERE branch_id = ? AND id = ?`;
         [rows] = await conn.execute<Array<any>>(sql, [branch_id, id]);
     } else {
         id = undefined;
@@ -65,10 +65,10 @@ export default async function get_grn_list(req: Request, res: Response) {
     }
 
     // get grn products
-    const grn = rows[0];
+    // const grn = rows[0];
     //grn.grn_number = rows[0].grn_no;
     //grn.grn_date = rows[0].grn_date;
-    const [products] = await conn.execute('SELECT * FROM grn_products WHERE grn_id = ?', [grn.id]);
-    grn.products = products;
+    // const [products] = await conn.execute('SELECT * FROM grn_products WHERE grn_id = ?', [grn.id]);
+    // grn.products = products;
     return res.json(rows);
 }

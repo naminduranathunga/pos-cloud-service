@@ -46,12 +46,16 @@ export default async function get_grn_by_id(req: Request, res: Response) {
     const grn = grns[0] as GRNInterface;
 
     // get products
-    let [products] = await conn.query<Array<any>>('SELECT * FROM grn_products WHERE grn_id = ?', [grn.id]);
+    let [products] = await conn.query<Array<any>>('SELECT grn_products.*, products.name as name FROM grn_products LEFT JOIN products ON products.id = grn_products.product_id WHERE grn_id = ?', [grn.id]);
     grn.products = products.map(p => {return {
         product_id: p.product_id as number,
         quantity: p.quantity as number,
         cost_price: p.cost_price as number,
         sale_price: p.sale_price as number,
+        product: {
+            id: p.product_id as number,
+            name: p.name as string,
+        }
     }});
 
     // get branch

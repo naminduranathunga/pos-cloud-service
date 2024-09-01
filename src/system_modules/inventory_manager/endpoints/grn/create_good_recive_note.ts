@@ -116,7 +116,7 @@ export default async function create_good_recive_note(req: Request, res: Respons
         sql = `SELECT * FROM grn WHERE grn_no = ? AND branch_id = ?`;
         let [grns] = await conn.query<any[]>(sql, [grn.grn_number, branch._id.toString()]);
         if (grns.length > 0) {
-            grn.grn_date = await get_next_grn_no(branch);
+            grn.grn_number = await get_next_grn_no(branch);
         }
 
         // insert into grn
