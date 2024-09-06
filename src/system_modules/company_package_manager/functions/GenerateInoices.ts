@@ -5,7 +5,7 @@ import GetNextInvoiceNumber from "./GetNextInvoiceNumber";
 
 
 
-export default async function GenerateInvoices(company: any){
+export default async function GenerateInvoices(company: any) {
 
     if (typeof company.subscription === "undefined") {
         //throw new Error("Company has no subscription");
@@ -17,7 +17,7 @@ export default async function GenerateInvoices(company: any){
 
     if (typeof subscription.nextInvoicingDate !== "undefined" && subscription.nextInvoicingDate > new Date()) {
         //throw new Error("Next invoicing date is not reached yet");
-        return;
+        //return;  -- Note: For Development purpose, I have commented this line Namindu
     }
 
     let lastInvoiceNumber = 0;
