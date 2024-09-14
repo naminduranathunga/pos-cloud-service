@@ -10,7 +10,7 @@ export default async function get_product_stock(req: Request, res: Response) {
     
     if (!user.company) return res.status(400).json({message: "User does not belong to a company"});
     
-    if (!check_user_permission(user, "create_product") && !check_user_permission(user, "company-admin")) {
+    if (!check_user_permission(user, "get_products") && !check_user_permission(user, "company-admin")) {
         res.status(403).json({
             "message": "No permissions"
         });
