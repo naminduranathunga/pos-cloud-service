@@ -53,8 +53,12 @@ const CompanySchema = new Schema({
     subscription: {
         type: Schema.Types.Mixed,
         required: false,
+    },
+    logo: {
+        type: String,
+        required: false,
+        default: ''
     }
-
 });
 
 const Company = mongoose.model('Company', CompanySchema);
